@@ -27,20 +27,19 @@
 
 namespace Plasma
 {
-    class Containment;
+class Containment;
 } // namespace Plasma
 
 class ShellCorona;
 
 namespace WorkspaceScripting
 {
-
 class ScriptEngine;
 
 class Containment : public Applet
 {
     Q_OBJECT
-    ///FIXME: add NOTIFY
+    /// FIXME: add NOTIFY
     Q_PROPERTY(QString version READ version)
     Q_PROPERTY(QStringList configKeys READ configKeys)
     Q_PROPERTY(QStringList configGroups READ configGroups)
@@ -88,10 +87,9 @@ protected:
 
 private:
     class Private;
-    Private * const d;
+    Private *const d;
 };
 
 }
 
 #endif
-

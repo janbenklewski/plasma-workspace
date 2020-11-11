@@ -23,8 +23,8 @@
 #include "kiomediastream.h"
 #include <kio/jobclasses.h>
 
-namespace Phonon {
-
+namespace Phonon
+{
 class KioMediaStreamPrivate
 {
     Q_DECLARE_PUBLIC(KioMediaStream)
@@ -32,13 +32,13 @@ protected:
     KioMediaStream *q_ptr;
 
     KioMediaStreamPrivate(const QUrl &u)
-        : url(u),
-          endOfDataSent(false),
-          seeking(false),
-          reading(false),
-          open(false),
-          seekPosition(0),
-          kiojob(nullptr)
+        : url(u)
+        , endOfDataSent(false)
+        , seeking(false)
+        , reading(false)
+        , open(false)
+        , seekPosition(0)
+        , kiojob(nullptr)
     {
     }
 

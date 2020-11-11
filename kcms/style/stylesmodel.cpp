@@ -30,9 +30,9 @@
 
 #include <algorithm>
 
-StylesModel::StylesModel(QObject *parent) : QAbstractListModel(parent)
+StylesModel::StylesModel(QObject *parent)
+    : QAbstractListModel(parent)
 {
-
 }
 
 StylesModel::~StylesModel() = default;
@@ -60,9 +60,12 @@ QVariant StylesModel::data(const QModelIndex &index, int role) const
             return item.display;
         }
         return item.styleName;
-    case StyleNameRole: return item.styleName;
-    case DescriptionRole: return item.description;
-    case ConfigurableRole: return !item.configPage.isEmpty();
+    case StyleNameRole:
+        return item.styleName;
+    case DescriptionRole:
+        return item.description;
+    case ConfigurableRole:
+        return !item.configPage.isEmpty();
     }
 
     return QVariant();
@@ -70,12 +73,7 @@ QVariant StylesModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> StylesModel::roleNames() const
 {
-    return {
-        {Qt::DisplayRole, QByteArrayLiteral("display")},
-        {StyleNameRole, QByteArrayLiteral("styleName")},
-        {DescriptionRole, QByteArrayLiteral("description")},
-        {ConfigurableRole, QByteArrayLiteral("configurable")}
-    };
+    return {{Qt::DisplayRole, QByteArrayLiteral("display")}, {StyleNameRole, QByteArrayLiteral("styleName")}, {DescriptionRole, QByteArrayLiteral("description")}, {ConfigurableRole, QByteArrayLiteral("configurable")}};
 }
 
 QString StylesModel::selectedStyle() const
@@ -147,7 +145,7 @@ void StylesModel::load()
 
     const QStringList themeDirs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("kstyle/themes"), QStandardPaths::LocateDirectory);
     for (const QString &dir : themeDirs) {
-        const QStringList fileNames = QDir(dir).entryList(QStringList{QStringLiteral("*.themerc")});
+        const QStringList fileNames = QDir(dir).entryList(QStringList {QStringLiteral("*.themerc")});
         for (const QString &file : fileNames) {
             const QString suffixedFileName = QLatin1String("kstyle/themes/") + file;
             if (!themeFiles.contains(suffixedFileName)) {

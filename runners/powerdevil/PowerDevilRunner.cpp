@@ -20,14 +20,14 @@
 
 #include "PowerDevilRunner.h"
 
+#include <QDBusConnectionInterface>
 #include <QDBusInterface>
 #include <QDBusReply>
-#include <QDBusConnectionInterface>
-#include <QIcon>
 #include <QDebug>
+#include <QIcon>
 
-#include <KSharedConfig>
 #include <KLocalizedString>
+#include <KSharedConfig>
 
 #include <Solid/PowerManagement>
 
@@ -41,13 +41,8 @@ PowerDevilRunner::PowerDevilRunner(QObject *parent, const QVariantList &args)
     initUpdateTriggers();
 
     QStringList commands;
-    commands << i18nc("Note this is a KRunner keyword", "suspend")
-             << i18nc("Note this is a KRunner keyword", "sleep")
-             << i18nc("Note this is a KRunner keyword", "hibernate")
-             << i18nc("Note this is a KRunner keyword", "to disk")
-             << i18nc("Note this is a KRunner keyword", "to ram")
-             << i18nc("Note this is a KRunner keyword", "screen brightness")
-             << i18nc("Note this is a KRunner keyword", "dim screen");
+    commands << i18nc("Note this is a KRunner keyword", "suspend") << i18nc("Note this is a KRunner keyword", "sleep") << i18nc("Note this is a KRunner keyword", "hibernate") << i18nc("Note this is a KRunner keyword", "to disk")
+             << i18nc("Note this is a KRunner keyword", "to ram") << i18nc("Note this is a KRunner keyword", "screen brightness") << i18nc("Note this is a KRunner keyword", "dim screen");
     setTriggerWords(commands);
 }
 
@@ -55,29 +50,27 @@ void PowerDevilRunner::updateSyntaxes()
 {
     QList<Plasma::RunnerSyntax> syntaxes;
     syntaxes.append(Plasma::RunnerSyntax(i18nc("Note this is a KRunner keyword", "suspend"),
-                     i18n("Lists system suspend (e.g. sleep, hibernate) options "
-                          "and allows them to be activated")));
+                                         i18n("Lists system suspend (e.g. sleep, hibernate) options "
+                                              "and allows them to be activated")));
 
-    QSet< Solid::PowerManagement::SleepState > states = Solid::PowerManagement::supportedSleepStates();
+    QSet<Solid::PowerManagement::SleepState> states = Solid::PowerManagement::supportedSleepStates();
 
     if (states.contains(Solid::PowerManagement::SuspendState)) {
-        Plasma::RunnerSyntax sleepSyntax(i18nc("Note this is a KRunner keyword", "sleep"),
-                                         i18n("Suspends the system to RAM"));
+        Plasma::RunnerSyntax sleepSyntax(i18nc("Note this is a KRunner keyword", "sleep"), i18n("Suspends the system to RAM"));
         sleepSyntax.addExampleQuery(i18nc("Note this is a KRunner keyword", "to ram"));
         syntaxes.append(sleepSyntax);
     }
 
     if (states.contains(Solid::PowerManagement::HibernateState)) {
-        Plasma::RunnerSyntax hibernateSyntax(i18nc("Note this is a KRunner keyword", "hibernate"),
-                                         i18n("Suspends the system to disk"));
+        Plasma::RunnerSyntax hibernateSyntax(i18nc("Note this is a KRunner keyword", "hibernate"), i18n("Suspends the system to disk"));
         hibernateSyntax.addExampleQuery(i18nc("Note this is a KRunner keyword", "to disk"));
         syntaxes.append(hibernateSyntax);
     }
 
     Plasma::RunnerSyntax brightnessSyntax(i18nc("Note this is a KRunner keyword", "screen brightness"),
-                            // xgettext:no-c-format
-                            i18n("Lists screen brightness options or sets it to the brightness defined by :q:; "
-                                 "e.g. screen brightness 50 would dim the screen to 50% maximum brightness"));
+                                          // xgettext:no-c-format
+                                          i18n("Lists screen brightness options or sets it to the brightness defined by :q:; "
+                                               "e.g. screen brightness 50 would dim the screen to 50% maximum brightness"));
     brightnessSyntax.addExampleQuery(i18nc("Note this is a KRunner keyword", "dim screen"));
     syntaxes.append(brightnessSyntax);
     setSyntaxes(syntaxes);
@@ -92,10 +85,8 @@ void PowerDevilRunner::initUpdateTriggers()
     // Also receive updates triggered through the DBus
     QDBusConnection dbus = QDBusConnection::sessionBus();
     if (dbus.interface()->isServiceRegistered(QStringLiteral("org.kde.Solid.PowerManagement"))) {
-        if (!dbus.connect(QStringLiteral("org.kde.Solid.PowerManagement"),
-                          QStringLiteral("/org/kde/Solid/PowerManagement"),
-                          QStringLiteral("org.kde.Solid.PowerManagement"),
-                          QStringLiteral("configurationReloaded"), this, SLOT(updateStatus()))) {
+        if (!dbus.connect(
+                QStringLiteral("org.kde.Solid.PowerManagement"), QStringLiteral("/org/kde/Solid/PowerManagement"), QStringLiteral("org.kde.Solid.PowerManagement"), QStringLiteral("configurationReloaded"), this, SLOT(updateStatus()))) {
             qDebug() << "error!";
         }
     }
@@ -106,12 +97,12 @@ void PowerDevilRunner::updateStatus()
     updateSyntaxes();
 }
 
-bool PowerDevilRunner::parseQuery(const QString& query, const QList<QRegExp>& rxList, QString& parameter) const
+bool PowerDevilRunner::parseQuery(const QString &query, const QList<QRegExp> &rxList, QString &parameter) const
 {
-    for (const QRegExp& rx : rxList) {
+    for (const QRegExp &rx : rxList) {
         if (rx.exactMatch(query)) {
-             parameter = rx.cap(1).trimmed();
-             return true;
+            parameter = rx.cap(1).trimmed();
+            return true;
         }
     }
     return false;
@@ -125,11 +116,11 @@ void PowerDevilRunner::match(Plasma::RunnerContext &context)
     QString parameter;
 
     if (parseQuery(term,
-                          QList<QRegExp>() << QRegExp(i18nc("Note this is a KRunner keyword; %1 is a parameter", "screen brightness %1", QStringLiteral("(.*)")), Qt::CaseInsensitive)
-                                           << QRegExp(i18nc("Note this is a KRunner keyword", "screen brightness"), Qt::CaseInsensitive)
-                                           << QRegExp(i18nc("Note this is a KRunner keyword; %1 is a parameter", "dim screen %1", QStringLiteral("(.*)")), Qt::CaseInsensitive)
-                                           << QRegExp(i18nc("Note this is a KRunner keyword", "dim screen"), Qt::CaseInsensitive),
-                          parameter)) {
+                   QList<QRegExp>() << QRegExp(i18nc("Note this is a KRunner keyword; %1 is a parameter", "screen brightness %1", QStringLiteral("(.*)")), Qt::CaseInsensitive)
+                                    << QRegExp(i18nc("Note this is a KRunner keyword", "screen brightness"), Qt::CaseInsensitive)
+                                    << QRegExp(i18nc("Note this is a KRunner keyword; %1 is a parameter", "dim screen %1", QStringLiteral("(.*)")), Qt::CaseInsensitive)
+                                    << QRegExp(i18nc("Note this is a KRunner keyword", "dim screen"), Qt::CaseInsensitive),
+                   parameter)) {
         if (!parameter.isEmpty()) {
             bool test;
             int b = parameter.toInt(&test);
@@ -162,7 +153,7 @@ void PowerDevilRunner::match(Plasma::RunnerContext &context)
             matches.append(match2);
         }
     } else if (term.compare(i18nc("Note this is a KRunner keyword", "sleep"), Qt::CaseInsensitive) == 0) {
-        QSet< Solid::PowerManagement::SleepState > states = Solid::PowerManagement::supportedSleepStates();
+        QSet<Solid::PowerManagement::SleepState> states = Solid::PowerManagement::supportedSleepStates();
 
         if (states.contains(Solid::PowerManagement::SuspendState)) {
             addSuspendMatch(Solid::PowerManagement::SuspendState, matches);
@@ -171,11 +162,9 @@ void PowerDevilRunner::match(Plasma::RunnerContext &context)
         if (states.contains(Solid::PowerManagement::HibernateState)) {
             addSuspendMatch(Solid::PowerManagement::HibernateState, matches);
         }
-    } else if (term.compare(i18nc("Note this is a KRunner keyword", "suspend"), Qt::CaseInsensitive) == 0 ||
-               term.compare(i18nc("Note this is a KRunner keyword", "to ram"), Qt::CaseInsensitive) == 0) {
+    } else if (term.compare(i18nc("Note this is a KRunner keyword", "suspend"), Qt::CaseInsensitive) == 0 || term.compare(i18nc("Note this is a KRunner keyword", "to ram"), Qt::CaseInsensitive) == 0) {
         addSuspendMatch(Solid::PowerManagement::SuspendState, matches);
-    } else if (term.compare(i18nc("Note this is a KRunner keyword", "hibernate"), Qt::CaseInsensitive) == 0 ||
-               term.compare(i18nc("Note this is a KRunner keyword", "to disk"), Qt::CaseInsensitive) == 0) {
+    } else if (term.compare(i18nc("Note this is a KRunner keyword", "hibernate"), Qt::CaseInsensitive) == 0 || term.compare(i18nc("Note this is a KRunner keyword", "to disk"), Qt::CaseInsensitive) == 0) {
         addSuspendMatch(Solid::PowerManagement::HibernateState, matches);
     }
 
@@ -188,19 +177,19 @@ void PowerDevilRunner::addSuspendMatch(int value, QList<Plasma::QueryMatch> &mat
     match.setType(Plasma::QueryMatch::ExactMatch);
 
     switch ((Solid::PowerManagement::SleepState)value) {
-        case Solid::PowerManagement::SuspendState:
-        case Solid::PowerManagement::StandbyState:
-            match.setIconName(QStringLiteral("system-suspend"));
-            match.setText(i18nc("Suspend to RAM", "Sleep"));
-            match.setSubtext(i18n("Suspend to RAM"));
-            match.setRelevance(1);
-            break;
-        case Solid::PowerManagement::HibernateState:
-            match.setIconName(QStringLiteral("system-suspend-hibernate"));
-            match.setText(i18nc("Suspend to disk", "Hibernate"));
-            match.setSubtext(i18n("Suspend to disk"));
-            match.setRelevance(0.99);
-            break;
+    case Solid::PowerManagement::SuspendState:
+    case Solid::PowerManagement::StandbyState:
+        match.setIconName(QStringLiteral("system-suspend"));
+        match.setText(i18nc("Suspend to RAM", "Sleep"));
+        match.setSubtext(i18n("Suspend to RAM"));
+        match.setRelevance(1);
+        break;
+    case Solid::PowerManagement::HibernateState:
+        match.setIconName(QStringLiteral("system-suspend-hibernate"));
+        match.setText(i18nc("Suspend to disk", "Hibernate"));
+        match.setSubtext(i18n("Suspend to disk"));
+        match.setRelevance(0.99);
+        break;
     }
 
     match.setData(value);
@@ -212,12 +201,8 @@ void PowerDevilRunner::run(const Plasma::RunnerContext &context, const Plasma::Q
 {
     Q_UNUSED(context)
 
-    QDBusInterface iface(QStringLiteral("org.kde.Solid.PowerManagement"),
-                         QStringLiteral("/org/kde/Solid/PowerManagement"),
-                         QStringLiteral("org.kde.Solid.PowerManagement"));
-    QDBusInterface brightnessIface(QStringLiteral("org.kde.Solid.PowerManagement"),
-                                   QStringLiteral("/org/kde/Solid/PowerManagement/Actions/BrightnessControl"),
-                                   QStringLiteral("org.kde.Solid.PowerManagement.Actions.BrightnessControl"));
+    QDBusInterface iface(QStringLiteral("org.kde.Solid.PowerManagement"), QStringLiteral("/org/kde/Solid/PowerManagement"), QStringLiteral("org.kde.Solid.PowerManagement"));
+    QDBusInterface brightnessIface(QStringLiteral("org.kde.Solid.PowerManagement"), QStringLiteral("/org/kde/Solid/PowerManagement/Actions/BrightnessControl"), QStringLiteral("org.kde.Solid.PowerManagement.Actions.BrightnessControl"));
     if (match.id().startsWith(QLatin1String("PowerDevil_ProfileChange"))) {
         iface.asyncCall(QStringLiteral("loadProfile"), match.data().toString());
     } else if (match.id() == QLatin1String("PowerDevil_BrightnessChange")) {
@@ -229,13 +214,13 @@ void PowerDevilRunner::run(const Plasma::RunnerContext &context, const Plasma::Q
         brightnessIface.asyncCall(QStringLiteral("setBrightness"), static_cast<int>(brightness / 2));
     } else if (match.id().startsWith(QLatin1String("PowerDevil_Sleep"))) {
         switch ((Solid::PowerManagement::SleepState)match.data().toInt()) {
-            case Solid::PowerManagement::SuspendState:
-            case Solid::PowerManagement::StandbyState:
-                Solid::PowerManagement::requestSleep(Solid::PowerManagement::SuspendState, nullptr, nullptr);
-                break;
-            case Solid::PowerManagement::HibernateState:
-                Solid::PowerManagement::requestSleep(Solid::PowerManagement::HibernateState, nullptr, nullptr);
-                break;
+        case Solid::PowerManagement::SuspendState:
+        case Solid::PowerManagement::StandbyState:
+            Solid::PowerManagement::requestSleep(Solid::PowerManagement::SuspendState, nullptr, nullptr);
+            break;
+        case Solid::PowerManagement::HibernateState:
+            Solid::PowerManagement::requestSleep(Solid::PowerManagement::HibernateState, nullptr, nullptr);
+            break;
         }
     }
 }

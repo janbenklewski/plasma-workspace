@@ -41,14 +41,14 @@
 
 #include <KAboutData>
 #include <KConfigGroup>
-#include <Kdelibs4Migration>
 #include <KIconLoader>
 #include <KIconTheme>
 #include <KJobUiDelegate>
 #include <KLocalizedString>
-#include <KSharedConfig>
 #include <KPluginFactory>
+#include <KSharedConfig>
 #include <KTar>
+#include <Kdelibs4Migration>
 
 #include <KIO/DeleteJob>
 #include <KIO/FileCopyJob>
@@ -56,14 +56,14 @@
 #include <algorithm>
 #include <unistd.h> // for unlink
 
-#include "iconssettings.h"
 #include "iconsdata.h"
-#include "iconsmodel.h"
 #include "iconsizecategorymodel.h"
+#include "iconsmodel.h"
+#include "iconssettings.h"
 
 #include "config.h" // for CMAKE_INSTALL_FULL_LIBEXECDIR
 
-K_PLUGIN_FACTORY_WITH_JSON(IconsFactory, "kcm_icons.json", registerPlugin<IconModule>();registerPlugin<IconsData>();)
+K_PLUGIN_FACTORY_WITH_JSON(IconsFactory, "kcm_icons.json", registerPlugin<IconModule>(); registerPlugin<IconsData>();)
 
 IconModule::IconModule(QObject *parent, const QVariantList &args)
     : KQuickAddons::ManagedConfigModule(parent, args)
@@ -78,9 +78,7 @@ IconModule::IconModule(QObject *parent, const QVariantList &args)
     // to be able to access its enums
     qmlRegisterUncreatableType<KIconLoader>("org.kde.private.kcms.icons", 1, 0, "KIconLoader", QString());
 
-    KAboutData* about = new KAboutData(QStringLiteral("kcm5_icons"), i18n("Icons"), QStringLiteral("1.0"),
-                                       i18n("Icons Control Panel Module"), KAboutLicense::GPL,
-                                       i18n("(c) 2000-2003 Geert Jansen"));
+    KAboutData *about = new KAboutData(QStringLiteral("kcm5_icons"), i18n("Icons"), QStringLiteral("1.0"), i18n("Icons Control Panel Module"), KAboutLicense::GPL, i18n("(c) 2000-2003 Geert Jansen"));
     about->addAuthor(i18n("Geert Jansen"), QString(), QStringLiteral("jansen@kde.org"));
     about->addAuthor(i18n("Antonio Larrosa Jimenez"), QString(), QStringLiteral("larrosa@kde.org"));
     about->addCredit(i18n("Torsten Rahn"), QString(), QStringLiteral("torsten@kde.org"));
@@ -216,8 +214,7 @@ void IconModule::installThemeFromFile(const QUrl &url)
         return;
     }
 
-    m_tempCopyJob = KIO::file_copy(url,QUrl::fromLocalFile(m_tempInstallFile->fileName()),
-                                           -1, KIO::Overwrite);
+    m_tempCopyJob = KIO::file_copy(url, QUrl::fromLocalFile(m_tempInstallFile->fileName()), -1, KIO::Overwrite);
     m_tempCopyJob->uiDelegate()->setAutoErrorHandlingEnabled(true);
     emit downloadingFileChanged();
 
@@ -254,7 +251,7 @@ void IconModule::installThemeFile(const QString &path)
 
 void IconModule::exportToKDE4()
 {
-    //TODO: killing the kde4 icon cache: possible? (kde4migration doesn't let access the cache folder)
+    // TODO: killing the kde4 icon cache: possible? (kde4migration doesn't let access the cache folder)
     Kdelibs4Migration migration;
     QString configFilePath = migration.saveLocation("config");
     if (configFilePath.isEmpty()) {
@@ -269,7 +266,7 @@ void IconModule::exportToKDE4()
     KConfigGroup kde4IconGroup(&kde4config, "Icons");
     kde4IconGroup.writeEntry("Theme", iconsSettings()->theme());
 
-    //Synchronize icon effects
+    // Synchronize icon effects
     for (int row = 0; row < m_iconSizeCategoryModel->rowCount(); row++) {
         QModelIndex idx(m_iconSizeCategoryModel->index(row, 0));
         QString group = m_iconSizeCategoryModel->data(idx, IconSizeCategoryModel::ConfigSectionRole).toString();
@@ -280,7 +277,7 @@ void IconModule::exportToKDE4()
         // HACK copyTo only copies keys, it doesn't replace the entire group
         // which means if we removed the effects in our config it won't remove
         // them from the kde4 config, hence revert all of them prior to copying
-        const QStringList keys =  cg.keyList() + kde4Cg.keyList();
+        const QStringList keys = cg.keyList() + kde4Cg.keyList();
         for (const QString &key : keys) {
             kde4Cg.revertToDefault(key);
         }
@@ -291,30 +288,24 @@ void IconModule::exportToKDE4()
     kde4config.sync();
 
     QProcess *cachePathProcess = new QProcess(this);
-    connect(cachePathProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
-            [cachePathProcess](int exitCode, QProcess::ExitStatus status) {
-
+    connect(cachePathProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [cachePathProcess](int exitCode, QProcess::ExitStatus status) {
         if (status == QProcess::NormalExit && exitCode == 0) {
             QString path = cachePathProcess->readAllStandardOutput().trimmed();
             path.append(QLatin1String("icon-cache.kcache"));
             QFile::remove(path);
         }
 
-        //message kde4 apps that icon theme has changed
+        // message kde4 apps that icon theme has changed
         for (int i = 0; i < KIconLoader::LastGroup; i++) {
-            QDBusMessage message = QDBusMessage::createSignal(QStringLiteral("/KGlobalSettings"),
-                                                              QStringLiteral("org.kde.KGlobalSettings"),
-                                                              QStringLiteral("notifyChange"));
-            message.setArguments({
-                4, // KGlobalSettings::IconChanged
-                KIconLoader::Group(i)
-            });
+            QDBusMessage message = QDBusMessage::createSignal(QStringLiteral("/KGlobalSettings"), QStringLiteral("org.kde.KGlobalSettings"), QStringLiteral("notifyChange"));
+            message.setArguments({4, // KGlobalSettings::IconChanged
+                                  KIconLoader::Group(i)});
             QDBusConnection::sessionBus().send(message);
         }
 
         cachePathProcess->deleteLater();
     });
-    cachePathProcess->start(QStringLiteral("kde4-config"), { QStringLiteral("--path"), QStringLiteral("cache")});
+    cachePathProcess->start(QStringLiteral("kde4-config"), {QStringLiteral("--path"), QStringLiteral("cache")});
 }
 
 QStringList IconModule::findThemeDirs(const QString &archiveName)
@@ -331,7 +322,7 @@ QStringList IconModule::findThemeDirs(const QString &archiveName)
     // iterate all the dirs looking for an index.theme or index.desktop file
     const QStringList entries = themeDir->entries();
     for (const QString &entry : entries) {
-        possibleDir = const_cast<KArchiveEntry*>(themeDir->entry(entry));
+        possibleDir = const_cast<KArchiveEntry *>(themeDir->entry(entry));
         if (!possibleDir->isDirectory()) {
             continue;
         }
@@ -341,9 +332,8 @@ QStringList IconModule::findThemeDirs(const QString &archiveName)
             continue;
         }
 
-        if (subDir->entry(QStringLiteral("index.theme"))
-                || subDir->entry(QStringLiteral("index.desktop"))) {
-          foundThemes.append(subDir->name());
+        if (subDir->entry(QStringLiteral("index.theme")) || subDir->entry(QStringLiteral("index.desktop"))) {
+            foundThemes.append(subDir->name());
         }
     }
 
@@ -370,7 +360,7 @@ bool IconModule::installThemes(const QStringList &themes, const QString &archive
 
         qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 
-        currentTheme = dynamic_cast<KArchiveDirectory*>(const_cast<KArchiveEntry*>(rootDir->entry(theme)));
+        currentTheme = dynamic_cast<KArchiveDirectory *>(const_cast<KArchiveEntry *>(rootDir->entry(theme)));
         if (!currentTheme) {
             // we tell back that something went wrong, but try to install as much
             // as possible
@@ -389,28 +379,26 @@ bool IconModule::installThemes(const QStringList &themes, const QString &archive
 
 QVariantList IconModule::previewIcons(const QString &themeName, int size, qreal dpr, int limit)
 {
-    static QVector<QStringList> s_previewIcons{
-        {QStringLiteral("system-run"), QStringLiteral("exec")},
-        {QStringLiteral("folder")},
-        {QStringLiteral("document"), QStringLiteral("text-x-generic")},
-        {QStringLiteral("user-trash"), QStringLiteral("user-trash-empty")},
-        {QStringLiteral("help-browser"), QStringLiteral("system-help"), QStringLiteral("help-about"), QStringLiteral("help-contents")},
-        {QStringLiteral("preferences-system"), QStringLiteral("systemsettings"), QStringLiteral("configure")},
+    static QVector<QStringList> s_previewIcons {{QStringLiteral("system-run"), QStringLiteral("exec")},
+                                                {QStringLiteral("folder")},
+                                                {QStringLiteral("document"), QStringLiteral("text-x-generic")},
+                                                {QStringLiteral("user-trash"), QStringLiteral("user-trash-empty")},
+                                                {QStringLiteral("help-browser"), QStringLiteral("system-help"), QStringLiteral("help-about"), QStringLiteral("help-contents")},
+                                                {QStringLiteral("preferences-system"), QStringLiteral("systemsettings"), QStringLiteral("configure")},
 
-        {QStringLiteral("text-html")},
-        {QStringLiteral("image-x-generic"), QStringLiteral("image-png"), QStringLiteral("image-jpeg")},
-        {QStringLiteral("video-x-generic"), QStringLiteral("video-x-theora+ogg"), QStringLiteral("video-mp4")},
-        {QStringLiteral("x-office-document")},
-        {QStringLiteral("x-office-spreadsheet")},
-        {QStringLiteral("x-office-presentation"), QStringLiteral("application-presentation")},
+                                                {QStringLiteral("text-html")},
+                                                {QStringLiteral("image-x-generic"), QStringLiteral("image-png"), QStringLiteral("image-jpeg")},
+                                                {QStringLiteral("video-x-generic"), QStringLiteral("video-x-theora+ogg"), QStringLiteral("video-mp4")},
+                                                {QStringLiteral("x-office-document")},
+                                                {QStringLiteral("x-office-spreadsheet")},
+                                                {QStringLiteral("x-office-presentation"), QStringLiteral("application-presentation")},
 
-        {QStringLiteral("user-home")},
-        {QStringLiteral("user-desktop"), QStringLiteral("desktop")},
-        {QStringLiteral("folder-image"), QStringLiteral("folder-images"), QStringLiteral("folder-pictures"), QStringLiteral("folder-picture")},
-        {QStringLiteral("folder-documents")},
-        {QStringLiteral("folder-download"), QStringLiteral("folder-downloads")},
-        {QStringLiteral("folder-video"), QStringLiteral("folder-videos")}
-    };
+                                                {QStringLiteral("user-home")},
+                                                {QStringLiteral("user-desktop"), QStringLiteral("desktop")},
+                                                {QStringLiteral("folder-image"), QStringLiteral("folder-images"), QStringLiteral("folder-pictures"), QStringLiteral("folder-picture")},
+                                                {QStringLiteral("folder-documents")},
+                                                {QStringLiteral("folder-download"), QStringLiteral("folder-downloads")},
+                                                {QStringLiteral("folder-video"), QStringLiteral("folder-videos")}};
 
     // created on-demand as it is quite expensive to do and we don't want to do it every loop iteration either
     QScopedPointer<KIconTheme> theme;
@@ -418,8 +406,7 @@ QVariantList IconModule::previewIcons(const QString &themeName, int size, qreal 
     QVariantList pixmaps;
 
     for (const QStringList &iconNames : s_previewIcons) {
-        const QString cacheKey = themeName + QLatin1Char('@') + QString::number(size) + QLatin1Char('@')
-            + QString::number(dpr,'f',1) + QLatin1Char('@') + iconNames.join(QLatin1Char(','));
+        const QString cacheKey = themeName + QLatin1Char('@') + QString::number(size) + QLatin1Char('@') + QString::number(dpr, 'f', 1) + QLatin1Char('@') + iconNames.join(QLatin1Char(','));
 
         QPixmap pix;
         if (!QPixmapCache::find(cacheKey, &pix)) {
@@ -466,7 +453,7 @@ QPixmap IconModule::getBestIcon(KIconTheme &theme, const QStringList &iconNames,
                 return pixmap;
             }
 
-            //could not find the .png, try loading the .svg or .svgz
+            // could not find the .png, try loading the .svg or .svgz
             path = theme.iconPath(QStringLiteral("%1.svg").arg(iconName), iconSize, KIconLoader::MatchBest);
             if (path.isEmpty()) {
                 path = theme.iconPath(QStringLiteral("%1.svgz").arg(iconName), iconSize, KIconLoader::MatchBest);

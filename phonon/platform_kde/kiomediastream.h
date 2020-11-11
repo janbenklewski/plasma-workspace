@@ -20,13 +20,13 @@
 #ifndef PHONON_KIOMEDIASTREAM_H
 #define PHONON_KIOMEDIASTREAM_H
 
-#include <Phonon/AbstractMediaStream>
 #include <KIO/Job>
+#include <Phonon/AbstractMediaStream>
 
 class QUrl;
 
-namespace Phonon {
-
+namespace Phonon
+{
 class KioMediaStreamPrivate;
 
 class KioMediaStream : public AbstractMediaStream

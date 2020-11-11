@@ -20,7 +20,7 @@
 
 #include "notificationgroupcollapsingproxymodel_p.h"
 
-#include  "notifications.h"
+#include "notifications.h"
 
 #include "debug.h"
 
@@ -29,7 +29,6 @@ using namespace NotificationManager;
 NotificationGroupCollapsingProxyModel::NotificationGroupCollapsingProxyModel(QObject *parent)
     : QSortFilterProxyModel(parent)
 {
-
 }
 
 NotificationGroupCollapsingProxyModel::~NotificationGroupCollapsingProxyModel() = default;

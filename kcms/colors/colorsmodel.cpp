@@ -33,9 +33,9 @@
 
 #include <algorithm>
 
-ColorsModel::ColorsModel(QObject *parent) : QAbstractListModel(parent)
+ColorsModel::ColorsModel(QObject *parent)
+    : QAbstractListModel(parent)
 {
-
 }
 
 ColorsModel::~ColorsModel() = default;
@@ -58,13 +58,20 @@ QVariant ColorsModel::data(const QModelIndex &index, int role) const
     const auto &item = m_data.at(index.row());
 
     switch (role) {
-    case Qt::DisplayRole: return item.display;
-    case SchemeNameRole: return item.schemeName;
-    case PaletteRole: return item.palette;
-    case ActiveTitleBarBackgroundRole: return item.activeTitleBarBackground;
-    case ActiveTitleBarForegroundRole: return item.activeTitleBarForeground;
-    case PendingDeletionRole: return item.pendingDeletion;
-    case RemovableRole: return item.removable;
+    case Qt::DisplayRole:
+        return item.display;
+    case SchemeNameRole:
+        return item.schemeName;
+    case PaletteRole:
+        return item.palette;
+    case ActiveTitleBarBackgroundRole:
+        return item.activeTitleBarBackground;
+    case ActiveTitleBarForegroundRole:
+        return item.activeTitleBarForeground;
+    case PendingDeletionRole:
+        return item.pendingDeletion;
+    case RemovableRole:
+        return item.removable;
     }
 
     return QVariant();
@@ -103,15 +110,13 @@ bool ColorsModel::setData(const QModelIndex &index, const QVariant &value, int r
 
 QHash<int, QByteArray> ColorsModel::roleNames() const
 {
-    return {
-        {Qt::DisplayRole, QByteArrayLiteral("display")},
-        {SchemeNameRole, QByteArrayLiteral("schemeName")},
-        {PaletteRole, QByteArrayLiteral("palette")},
-        {ActiveTitleBarBackgroundRole, QByteArrayLiteral("activeTitleBarBackground")},
-        {ActiveTitleBarForegroundRole, QByteArrayLiteral("activeTitleBarForeground")},
-        {RemovableRole, QByteArrayLiteral("removable")},
-        {PendingDeletionRole, QByteArrayLiteral("pendingDeletion")}
-    };
+    return {{Qt::DisplayRole, QByteArrayLiteral("display")},
+            {SchemeNameRole, QByteArrayLiteral("schemeName")},
+            {PaletteRole, QByteArrayLiteral("palette")},
+            {ActiveTitleBarBackgroundRole, QByteArrayLiteral("activeTitleBarBackground")},
+            {ActiveTitleBarForegroundRole, QByteArrayLiteral("activeTitleBarForeground")},
+            {RemovableRole, QByteArrayLiteral("removable")},
+            {PendingDeletionRole, QByteArrayLiteral("pendingDeletion")}};
 }
 
 QString ColorsModel::selectedScheme() const
@@ -133,7 +138,7 @@ void ColorsModel::setSelectedScheme(const QString &scheme)
 
 int ColorsModel::indexOfScheme(const QString &scheme) const
 {
-    auto it = std::find_if(m_data.begin(), m_data.end(), [ &scheme](const ColorsModelData &item) {
+    auto it = std::find_if(m_data.begin(), m_data.end(), [&scheme](const ColorsModelData &item) {
         return item.schemeName == scheme;
     });
 
@@ -161,7 +166,7 @@ void ColorsModel::load()
 
     const QStringList schemeDirs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("color-schemes"), QStandardPaths::LocateDirectory);
     for (const QString &dir : schemeDirs) {
-        const QStringList fileNames = QDir(dir).entryList(QStringList{QStringLiteral("*.colors")});
+        const QStringList fileNames = QDir(dir).entryList(QStringList {QStringLiteral("*.colors")});
         for (const QString &file : fileNames) {
             const QString suffixedFileName = QLatin1String("color-schemes/") + file;
             // can't use QSet because of the transform below (passing const QString as this argument discards qualifiers)
@@ -190,7 +195,7 @@ void ColorsModel::load()
         const QColor activeTitleBarBackground = wmConfig.readEntry("activeBackground", headerColorScheme.background().color());
         const QColor activeTitleBarForeground = wmConfig.readEntry("activeForeground", headerColorScheme.foreground().color());
 
-        ColorsModelData item{
+        ColorsModelData item {
             name,
             baseName,
             palette,

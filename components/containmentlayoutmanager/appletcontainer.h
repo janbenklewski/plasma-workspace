@@ -22,15 +22,15 @@
 
 #include "itemcontainer.h"
 
-#include <QQmlParserStatus>
 #include <QPointer>
+#include <QQmlParserStatus>
 
-
-namespace PlasmaQuick {
-    class AppletQuickItem;
+namespace PlasmaQuick
+{
+class AppletQuickItem;
 }
 
-class AppletContainer: public ItemContainer
+class AppletContainer : public ItemContainer
 {
     Q_OBJECT
     Q_INTERFACES(QQmlParserStatus)
@@ -71,4 +71,3 @@ private:
     QPointer<QQmlComponent> m_configurationRequiredComponent;
     QQuickItem *m_configurationRequiredItem = nullptr;
 };
-

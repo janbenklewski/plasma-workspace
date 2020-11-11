@@ -22,16 +22,15 @@
 
 #include "debug.h"
 
-#include <QDebug>
 #include <QDBusConnection>
+#include <QDebug>
 #include <QTimer>
 
 #include <KFilePlacesModel>
-#include <KService>
 #include <KLocalizedString>
+#include <KService>
 
 #include <kio/global.h>
-
 
 #include "jobviewv2adaptor.h"
 #include "jobviewv3adaptor.h"
@@ -105,8 +104,7 @@ QString JobPrivate::prettyDestUrl() const
 
         QString pathInsidePlace = url.path().mid(placeUrl.path().length());
 
-        if (!pathInsidePlace.isEmpty()
-                && !pathInsidePlace.startsWith(QLatin1Char('/'))) {
+        if (!pathInsidePlace.isEmpty() && !pathInsidePlace.startsWith(QLatin1Char('/'))) {
             pathInsidePlace.prepend(QLatin1Char('/'));
         }
 
@@ -122,17 +120,8 @@ QString JobPrivate::prettyDestUrl() const
 
 void JobPrivate::updateHasDetails()
 {
-    const bool hasDetails = m_totalBytes > 0
-        || m_totalFiles > 0
-        || m_totalDirectories > 0
-        || m_totalItems > 0
-        || m_processedBytes > 0
-        || m_processedFiles > 0
-        || m_processedDirectories > 0
-        || m_processedItems > 0
-        || !m_descriptionValue1.isEmpty()
-        || !m_descriptionValue2.isEmpty()
-        || m_speed > 0;
+    const bool hasDetails = m_totalBytes > 0 || m_totalFiles > 0 || m_totalDirectories > 0 || m_totalItems > 0 || m_processedBytes > 0 || m_processedFiles > 0 || m_processedDirectories > 0 || m_processedItems > 0 ||
+        !m_descriptionValue1.isEmpty() || !m_descriptionValue2.isEmpty() || m_speed > 0;
 
     if (m_hasDetails != hasDetails) {
         m_hasDetails = hasDetails;
@@ -156,8 +145,7 @@ QString JobPrivate::text() const
     if (m_totalFiles == 0) {
         if (!destUrlString.isEmpty()) {
             if (m_processedFiles > 0) {
-                return i18ncp("Copying n files to location", "%1 file to %2", "%1 files to %2",
-                              m_processedFiles, destUrlString);
+                return i18ncp("Copying n files to location", "%1 file to %2", "%1 files to %2", m_processedFiles, destUrlString);
             }
             return i18nc("Copying unknown amount of files to location", "to %1", destUrlString);
         } else if (m_processedFiles > 0) {
@@ -172,26 +160,21 @@ QString JobPrivate::text() const
     } else if (m_totalFiles > 1) {
         if (!destUrlString.isEmpty()) {
             if (m_processedFiles > 0 && m_processedFiles <= m_totalFiles) {
-                return i18ncp("Copying n of m files to locaton", "%2 of %1 file to %3", "%2 of %1 files to %3",
-                              m_totalFiles, m_processedFiles, destUrlString);
+                return i18ncp("Copying n of m files to locaton", "%2 of %1 file to %3", "%2 of %1 files to %3", m_totalFiles, m_processedFiles, destUrlString);
             }
-            return i18ncp("Copying n files to location", "%1 file to %2", "%1 files to %2",
-                          m_processedFiles > 0 ? m_processedFiles : m_totalFiles, destUrlString);
+            return i18ncp("Copying n files to location", "%1 file to %2", "%1 files to %2", m_processedFiles > 0 ? m_processedFiles : m_totalFiles, destUrlString);
         }
 
         if (m_processedFiles > 0 && m_processedFiles <= m_totalFiles) {
-            return i18ncp("Copying n of m files", "%2 of %1 file", "%2 of %1 files",
-                          m_totalFiles, m_processedFiles);
+            return i18ncp("Copying n of m files", "%2 of %1 file", "%2 of %1 files", m_totalFiles, m_processedFiles);
         }
 
         return i18ncp("Copying n files", "%1 file", "%1 files", m_processedFiles > 0 ? m_processedFiles : m_totalFiles);
     }
 
     qCInfo(NOTIFICATIONMANAGER) << "Failed to generate job text for job with following properties:";
-    qCInfo(NOTIFICATIONMANAGER) << "  processedFiles =" << m_processedFiles << ", totalFiles =" << m_totalFiles
-                                << ", current file name =" << currentFileName << ", destination url string =" << destUrlString;
-    qCInfo(NOTIFICATIONMANAGER) << "label1 =" << m_descriptionLabel1 << ", value1 =" << m_descriptionValue1
-                                << ", label2 =" << m_descriptionLabel2 << ", value2 =" << m_descriptionValue2;
+    qCInfo(NOTIFICATIONMANAGER) << "  processedFiles =" << m_processedFiles << ", totalFiles =" << m_totalFiles << ", current file name =" << currentFileName << ", destination url string =" << destUrlString;
+    qCInfo(NOTIFICATIONMANAGER) << "label1 =" << m_descriptionLabel1 << ", value1 =" << m_descriptionValue1 << ", label2 =" << m_descriptionLabel2 << ", value2 =" << m_descriptionValue2;
 
     return QString();
 }
@@ -325,7 +308,7 @@ bool JobPrivate::setDescriptionField(uint number, const QString &name, const QSt
         dirty |= updateField(value, m_descriptionValue2, &Job::descriptionValue2Changed);
     }
     if (dirty) {
-        emit static_cast<Job*>(parent())->descriptionUrlChanged();
+        emit static_cast<Job *>(parent())->descriptionUrlChanged();
         updateHasDetails();
     }
 

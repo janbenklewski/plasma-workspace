@@ -29,18 +29,17 @@ class ShellRunner : public Plasma::AbstractRunner
 {
     Q_OBJECT
 
-    public:
-        ShellRunner(QObject *parent, const QVariantList &args);
-        ~ShellRunner() override;
+public:
+    ShellRunner(QObject *parent, const QVariantList &args);
+    ~ShellRunner() override;
 
-        void match(Plasma::RunnerContext &context) override;
-        void run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &action) override;
+    void match(Plasma::RunnerContext &context) override;
+    void run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &action) override;
 
-    private:
-        bool parseENVVariables(const QString &query, QStringList &envs, QString &command);
-        QList<QAction *> m_actionList;
-        QIcon m_matchIcon;
+private:
+    bool parseENVVariables(const QString &query, QStringList &envs, QString &command);
+    QList<QAction *> m_actionList;
+    QIcon m_matchIcon;
 };
-
 
 #endif

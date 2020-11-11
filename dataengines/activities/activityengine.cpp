@@ -29,7 +29,7 @@
 #define ACTIVITYMANAGER_SERVICE "org.kde.kactivitymanagerd"
 #define ACTIVITYRANKING_OBJECT "/ActivityRanking"
 
-ActivityEngine::ActivityEngine(QObject* parent, const QVariantList& args)
+ActivityEngine::ActivityEngine(QObject *parent, const QVariantList &args)
     : Plasma::DataEngine(parent, args)
 {
     Q_UNUSED(args);
@@ -39,13 +39,13 @@ ActivityEngine::ActivityEngine(QObject* parent, const QVariantList& args)
 void ActivityEngine::init()
 {
     if (qApp->applicationName() == QLatin1String("plasma-netbook")) {
-        //hack for the netbook
-        //FIXME can I read a setting or something instead?
+        // hack for the netbook
+        // FIXME can I read a setting or something instead?
     } else {
         m_activityController = new KActivities::Controller(this);
         m_currentActivity = m_activityController->currentActivity();
         QStringList activities = m_activityController->activities();
-        //setData("allActivities", activities);
+        // setData("allActivities", activities);
         foreach (const QString &id, activities) {
             insertActivity(id);
         }
@@ -54,19 +54,14 @@ void ActivityEngine::init()
         connect(m_activityController, &KActivities::Controller::activityRemoved, this, &ActivityEngine::activityRemoved);
         connect(m_activityController, &KActivities::Controller::currentActivityChanged, this, &ActivityEngine::currentActivityChanged);
 
-        //some convenience sources for times when checking every activity source would suck
-        //it starts with _ so that it can easily be filtered out of sources()
-        //maybe I should just make it not included in sources() instead?
+        // some convenience sources for times when checking every activity source would suck
+        // it starts with _ so that it can easily be filtered out of sources()
+        // maybe I should just make it not included in sources() instead?
         m_runningActivities = m_activityController->activities(KActivities::Info::Running);
         setData(QStringLiteral("Status"), QStringLiteral("Current"), m_currentActivity);
         setData(QStringLiteral("Status"), QStringLiteral("Running"), m_runningActivities);
 
-        m_watcher = new QDBusServiceWatcher(
-            ACTIVITYMANAGER_SERVICE,
-            QDBusConnection::sessionBus(),
-            QDBusServiceWatcher::WatchForRegistration
-                | QDBusServiceWatcher::WatchForUnregistration,
-            this);
+        m_watcher = new QDBusServiceWatcher(ACTIVITYMANAGER_SERVICE, QDBusConnection::sessionBus(), QDBusServiceWatcher::WatchForRegistration | QDBusServiceWatcher::WatchForUnregistration, this);
 
         connect(m_watcher, &QDBusServiceWatcher::serviceRegistered, this, &ActivityEngine::enableRanking);
         connect(m_watcher, &QDBusServiceWatcher::serviceUnregistered, this, &ActivityEngine::disableRanking);
@@ -79,7 +74,7 @@ void ActivityEngine::init()
 
 void ActivityEngine::insertActivity(const QString &id)
 {
-    //id -> name, icon, state
+    // id -> name, icon, state
     KActivities::Info *activity = new KActivities::Info(id, this);
     m_activities[id] = activity;
     setData(id, QStringLiteral("Name"), activity->name());
@@ -88,21 +83,21 @@ void ActivityEngine::insertActivity(const QString &id)
 
     QString state;
     switch (activity->state()) {
-        case KActivities::Info::Running:
-            state = QLatin1String("Running");
-            break;
-        case KActivities::Info::Starting:
-            state = QLatin1String("Starting");
-            break;
-        case KActivities::Info::Stopping:
-            state = QLatin1String("Stopping");
-            break;
-        case KActivities::Info::Stopped:
-            state = QLatin1String("Stopped");
-            break;
-        case KActivities::Info::Invalid:
-        default:
-            state = QLatin1String("Invalid");
+    case KActivities::Info::Running:
+        state = QLatin1String("Running");
+        break;
+    case KActivities::Info::Starting:
+        state = QLatin1String("Starting");
+        break;
+    case KActivities::Info::Stopping:
+        state = QLatin1String("Stopping");
+        break;
+    case KActivities::Info::Stopped:
+        state = QLatin1String("Stopped");
+        break;
+    case KActivities::Info::Invalid:
+    default:
+        state = QLatin1String("Invalid");
     }
     setData(id, QStringLiteral("State"), state);
     setData(id, QStringLiteral("Score"), m_activityScores.value(id));
@@ -120,17 +115,10 @@ void ActivityEngine::disableRanking()
 
 void ActivityEngine::enableRanking()
 {
-    m_activityRankingClient = new org::kde::ActivityManager::ActivityRanking(
-            ACTIVITYMANAGER_SERVICE,
-            ACTIVITYRANKING_OBJECT,
-            QDBusConnection::sessionBus()
-        );
+    m_activityRankingClient = new org::kde::ActivityManager::ActivityRanking(ACTIVITYMANAGER_SERVICE, ACTIVITYRANKING_OBJECT, QDBusConnection::sessionBus());
     connect(m_activityRankingClient, &org::kde::ActivityManager::ActivityRanking::rankingChanged, this, &ActivityEngine::rankingChanged);
 
-    QDBusMessage msg = QDBusMessage::createMethodCall(ACTIVITYMANAGER_SERVICE,
-                                                      ACTIVITYRANKING_OBJECT,
-                                                      QStringLiteral("org.kde.ActivityManager.ActivityRanking"),
-                                                      QStringLiteral("activities"));
+    QDBusMessage msg = QDBusMessage::createMethodCall(ACTIVITYMANAGER_SERVICE, ACTIVITYRANKING_OBJECT, QStringLiteral("org.kde.ActivityManager.ActivityRanking"), QStringLiteral("activities"));
     QDBusPendingReply<ActivityDataList> reply = QDBusConnection::sessionBus().asyncCall(msg);
     QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(reply, this);
     QObject::connect(watcher, &QDBusPendingCallWatcher::finished, this, &ActivityEngine::activityScoresReply);
@@ -202,7 +190,7 @@ void ActivityEngine::currentActivityChanged(const QString &id)
 
 void ActivityEngine::activityDataChanged()
 {
-    KActivities::Info *activity = qobject_cast<KActivities::Info*>(sender());
+    KActivities::Info *activity = qobject_cast<KActivities::Info *>(sender());
     if (!activity) {
         return;
     }
@@ -214,28 +202,28 @@ void ActivityEngine::activityDataChanged()
 
 void ActivityEngine::activityStateChanged()
 {
-    KActivities::Info *activity = qobject_cast<KActivities::Info*>(sender());
+    KActivities::Info *activity = qobject_cast<KActivities::Info *>(sender());
     const QString id = activity->id();
     if (!activity) {
         return;
     }
     QString state;
     switch (activity->state()) {
-        case KActivities::Info::Running:
-            state = QLatin1String("Running");
-            break;
-        case KActivities::Info::Starting:
-            state = QLatin1String("Starting");
-            break;
-        case KActivities::Info::Stopping:
-            state = QLatin1String("Stopping");
-            break;
-        case KActivities::Info::Stopped:
-            state = QLatin1String("Stopped");
-            break;
-        case KActivities::Info::Invalid:
-        default:
-            state = QLatin1String("Invalid");
+    case KActivities::Info::Running:
+        state = QLatin1String("Running");
+        break;
+    case KActivities::Info::Starting:
+        state = QLatin1String("Starting");
+        break;
+    case KActivities::Info::Stopping:
+        state = QLatin1String("Stopping");
+        break;
+    case KActivities::Info::Stopped:
+        state = QLatin1String("Stopped");
+        break;
+    case KActivities::Info::Invalid:
+    default:
+        state = QLatin1String("Invalid");
     }
     setData(id, QStringLiteral("State"), state);
 
@@ -250,10 +238,9 @@ void ActivityEngine::activityStateChanged()
     setData(QStringLiteral("Status"), QStringLiteral("Running"), m_runningActivities);
 }
 
-
 Plasma::Service *ActivityEngine::serviceForSource(const QString &source)
 {
-    //FIXME validate the name
+    // FIXME validate the name
     ActivityService *service = new ActivityService(m_activityController, source);
     service->setParent(this);
     return service;

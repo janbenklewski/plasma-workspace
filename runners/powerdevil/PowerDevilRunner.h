@@ -26,21 +26,21 @@
 class PowerDevilRunner : public Plasma::AbstractRunner
 {
     Q_OBJECT
-    public:
-        PowerDevilRunner( QObject *parent, const QVariantList &args );
-        ~PowerDevilRunner() override;
+public:
+    PowerDevilRunner(QObject *parent, const QVariantList &args);
+    ~PowerDevilRunner() override;
 
-        void match(Plasma::RunnerContext &context) override;
-        void run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &action) override;
+    void match(Plasma::RunnerContext &context) override;
+    void run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &action) override;
 
-    private Q_SLOTS:
-        void updateStatus();
+private Q_SLOTS:
+    void updateStatus();
 
-    private:
-        void initUpdateTriggers();
-        void updateSyntaxes();
-        void addSuspendMatch(int value, QList<Plasma::QueryMatch> &matches);
-        bool parseQuery(const QString& query, const QList<QRegExp>& rxList, QString& parameter) const;
+private:
+    void initUpdateTriggers();
+    void updateSyntaxes();
+    void addSuspendMatch(int value, QList<Plasma::QueryMatch> &matches);
+    bool parseQuery(const QString &query, const QList<QRegExp> &rxList, QString &parameter) const;
 };
 
 #endif

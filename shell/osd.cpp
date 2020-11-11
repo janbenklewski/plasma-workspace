@@ -20,12 +20,12 @@
 #include "shellcorona.h"
 
 #include <QDBusConnection>
+#include <QDebug>
 #include <QTimer>
 #include <QWindow>
-#include <QDebug>
 
-#include <Plasma/Package>
 #include <KDeclarative/QmlObjectSharedEngine>
+#include <Plasma/Package>
 #include <klocalizedstring.h>
 
 Osd::Osd(const KSharedConfig::Ptr &config, ShellCorona *corona)
@@ -107,7 +107,7 @@ void Osd::kbdLayoutChanged(const QString &layoutName)
 
 void Osd::virtualDesktopChanged(const QString &currentVirtualDesktopName)
 {
-    //FIXME: need a VD icon
+    // FIXME: need a VD icon
     showText(QString(), currentVirtualDesktopName);
 }
 

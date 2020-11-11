@@ -30,7 +30,6 @@ using namespace NotificationManager;
 NotificationGroupingProxyModel::NotificationGroupingProxyModel(QObject *parent)
     : QAbstractProxyModel(parent)
 {
-
 }
 
 NotificationGroupingProxyModel::~NotificationGroupingProxyModel() = default;
@@ -46,9 +45,7 @@ bool NotificationGroupingProxyModel::appsMatch(const QModelIndex &a, const QMode
     const QString aOriginName = a.data(Notifications::OriginNameRole).toString();
     const QString bOriginName = b.data(Notifications::OriginNameRole).toString();
 
-    return !aName.isEmpty() && aName == bName
-            && aDesktopEntry == bDesktopEntry
-            && aOriginName == bOriginName;
+    return !aName.isEmpty() && aName == bName && aDesktopEntry == bDesktopEntry && aOriginName == bOriginName;
 }
 
 bool NotificationGroupingProxyModel::isGroup(int row) const
@@ -126,7 +123,7 @@ void NotificationGroupingProxyModel::rebuildMap()
     rowMap.reserve(rows);
 
     for (int i = 0; i < rows; ++i) {
-        rowMap.append(new QVector<int>{i});
+        rowMap.append(new QVector<int> {i});
     }
 
     checkGrouping(true /* silent */);
@@ -205,7 +202,7 @@ void NotificationGroupingProxyModel::setSourceModel(QAbstractItemModel *sourceMo
             for (int i = start; i <= end; ++i) {
                 if (!tryToGroup(this->sourceModel()->index(i, 0))) {
                     beginInsertRows(QModelIndex(), rowMap.count(), rowMap.count());
-                    rowMap.append(new QVector<int>{i});
+                    rowMap.append(new QVector<int> {i});
                     endInsertRows();
                 }
             }
@@ -219,44 +216,44 @@ void NotificationGroupingProxyModel::setSourceModel(QAbstractItemModel *sourceMo
             }
 
             for (int i = first; i <= last; ++i) {
-                    for (int j = 0; j < rowMap.count(); ++j) {
-                        const QVector<int> *sourceRows = rowMap.at(j);
-                        const int mapIndex = sourceRows->indexOf(i);
+                for (int j = 0; j < rowMap.count(); ++j) {
+                    const QVector<int> *sourceRows = rowMap.at(j);
+                    const int mapIndex = sourceRows->indexOf(i);
 
-                        if (mapIndex != -1) {
-                            // Remove top-level item.
-                            if (sourceRows->count() == 1) {
-                                beginRemoveRows(QModelIndex(), j, j);
-                                delete rowMap.takeAt(j);
-                                endRemoveRows();
+                    if (mapIndex != -1) {
+                        // Remove top-level item.
+                        if (sourceRows->count() == 1) {
+                            beginRemoveRows(QModelIndex(), j, j);
+                            delete rowMap.takeAt(j);
+                            endRemoveRows();
                             // Dissolve group.
-                            } else if (sourceRows->count() == 2) {
-                                const QModelIndex parent = index(j, 0);
-                                beginRemoveRows(parent, 0, 1);
-                                rowMap[j]->remove(mapIndex);
-                                endRemoveRows();
+                        } else if (sourceRows->count() == 2) {
+                            const QModelIndex parent = index(j, 0);
+                            beginRemoveRows(parent, 0, 1);
+                            rowMap[j]->remove(mapIndex);
+                            endRemoveRows();
 
-                                // We're no longer a group parent.
-                                dataChanged(parent, parent);
+                            // We're no longer a group parent.
+                            dataChanged(parent, parent);
                             // Remove group member.
-                            } else {
-                                const QModelIndex parent = index(j, 0);
-                                beginRemoveRows(parent, mapIndex, mapIndex);
-                                rowMap[j]->remove(mapIndex);
-                                endRemoveRows();
+                        } else {
+                            const QModelIndex parent = index(j, 0);
+                            beginRemoveRows(parent, mapIndex, mapIndex);
+                            rowMap[j]->remove(mapIndex);
+                            endRemoveRows();
 
-                                // Various roles of the parent evaluate child data, and the
-                                // child list has changed.
-                                dataChanged(parent, parent);
+                            // Various roles of the parent evaluate child data, and the
+                            // child list has changed.
+                            dataChanged(parent, parent);
 
-                                // Signal children count change for all other items in the group.
-                                emit dataChanged(index(0, 0, parent), index(rowMap.count() - 1, 0, parent), {Notifications::GroupChildrenCountRole});
-                            }
-
-                            break;
+                            // Signal children count change for all other items in the group.
+                            emit dataChanged(index(0, 0, parent), index(rowMap.count() - 1, 0, parent), {Notifications::GroupChildrenCountRole});
                         }
+
+                        break;
                     }
                 }
+            }
         });
 
         connect(sourceModel, &QAbstractItemModel::rowsRemoved, this, [this](const QModelIndex &parent, int start, int end) {
@@ -268,7 +265,6 @@ void NotificationGroupingProxyModel::setSourceModel(QAbstractItemModel *sourceMo
 
             checkGrouping();
         });
-
 
         connect(sourceModel, &QAbstractItemModel::modelAboutToBeReset, this, &NotificationGroupingProxyModel::beginResetModel);
         connect(sourceModel, &QAbstractItemModel::modelReset, this, [this] {
@@ -357,7 +353,7 @@ QModelIndex NotificationGroupingProxyModel::mapFromSource(const QModelIndex &sou
             // from mapToSource().
             if (isGroup(i)) {
                 return index(0, 0, parent);
-            // Otherwise map to the top-level item.
+                // Otherwise map to the top-level item.
             } else {
                 return parent;
             }
@@ -514,7 +510,6 @@ QVariant NotificationGroupingProxyModel::data(const QModelIndex &proxyIndex, int
                 }
             }
             return false;
-
         }
     } else {
         switch (role) {

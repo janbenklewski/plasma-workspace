@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include <QSortFilterProxyModel>
 #include <QQmlParserStatus>
+#include <QSortFilterProxyModel>
 
 #include <QScopedPointer>
 
@@ -29,7 +29,6 @@
 
 namespace NotificationManager
 {
-
 /**
  * @brief A model with notifications and jobs
  *
@@ -344,7 +343,7 @@ public:
      */
     enum GroupMode {
         GroupDisabled = 0,
-        //GroupApplicationsTree, // TODO make actual tree
+        // GroupApplicationsTree, // TODO make actual tree
         GroupApplicationsFlat,
     };
     Q_ENUM(GroupMode)
@@ -552,7 +551,6 @@ protected:
 private:
     class Private;
     QScopedPointer<Private> d;
-
 };
 
 } // namespace NotificationManager

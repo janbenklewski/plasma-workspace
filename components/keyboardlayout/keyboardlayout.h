@@ -30,18 +30,11 @@ class KeyboardLayout : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString currentLayout
-               READ currentLayout
-               WRITE setCurrentLayout
-               NOTIFY currentLayoutChanged)
+    Q_PROPERTY(QString currentLayout READ currentLayout WRITE setCurrentLayout NOTIFY currentLayoutChanged)
 
-    Q_PROPERTY(QString currentLayoutDisplayName
-               READ currentLayoutDisplayName
-               NOTIFY currentLayoutDisplayNameChanged)
+    Q_PROPERTY(QString currentLayoutDisplayName READ currentLayoutDisplayName NOTIFY currentLayoutDisplayNameChanged)
 
-    Q_PROPERTY(QStringList layouts
-               READ layouts
-               NOTIFY layoutsChanged)
+    Q_PROPERTY(QStringList layouts READ layouts NOTIFY layoutsChanged)
 
 public:
     explicit KeyboardLayout(QObject *parent = nullptr);
@@ -74,8 +67,6 @@ private:
     QString mCurrentLayout;
     QString mCurrentLayoutDisplayName;
     OrgKdeKeyboardLayoutsInterface *mIface;
-
 };
-
 
 #endif // KEYBOARDLAYOUT_H

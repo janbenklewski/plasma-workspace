@@ -39,12 +39,7 @@ Actions::Actions(const QString &serviceName, const QString &objectPath, QObject 
     Q_ASSERT(!serviceName.isEmpty());
     Q_ASSERT(!m_objectPath.isEmpty());
 
-    if (!QDBusConnection::sessionBus().connect(serviceName,
-                                               objectPath,
-                                               s_orgGtkActions,
-                                               QStringLiteral("Changed"),
-                                               this,
-                                               SLOT(onActionsChanged(QStringList,StringBoolMap,QVariantMap,GMenuActionMap)))) {
+    if (!QDBusConnection::sessionBus().connect(serviceName, objectPath, s_orgGtkActions, QStringLiteral("Changed"), this, SLOT(onActionsChanged(QStringList, StringBoolMap, QVariantMap, GMenuActionMap)))) {
         qCWarning(DBUSMENUPROXY) << "Failed to subscribe to action changes for" << parent << "on" << serviceName << "at" << objectPath;
     }
 }
@@ -53,10 +48,7 @@ Actions::~Actions() = default;
 
 void Actions::load()
 {
-    QDBusMessage msg = QDBusMessage::createMethodCall(m_serviceName,
-                                                      m_objectPath,
-                                                      s_orgGtkActions,
-                                                      QStringLiteral("DescribeAll"));
+    QDBusMessage msg = QDBusMessage::createMethodCall(m_serviceName, m_objectPath, s_orgGtkActions, QStringLiteral("DescribeAll"));
 
     QDBusPendingReply<GMenuActionMap> reply = QDBusConnection::sessionBus().asyncCall(msg);
     QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(reply, this);
@@ -96,10 +88,7 @@ void Actions::trigger(const QString &name, const QVariant &target, uint timestam
         return;
     }
 
-    QDBusMessage msg = QDBusMessage::createMethodCall(m_serviceName,
-                                                      m_objectPath,
-                                                      s_orgGtkActions,
-                                                      QStringLiteral("Activate"));
+    QDBusMessage msg = QDBusMessage::createMethodCall(m_serviceName, m_objectPath, s_orgGtkActions, QStringLiteral("Activate"));
     msg << name;
 
     QVariantList args;
@@ -136,10 +125,7 @@ bool Actions::isValid() const
     return !m_actions.isEmpty();
 }
 
-void Actions::onActionsChanged(const QStringList &removed,
-                               const StringBoolMap &enabledChanges,
-                               const QVariantMap &stateChanges,
-                               const GMenuActionMap &added)
+void Actions::onActionsChanged(const QStringList &removed, const StringBoolMap &enabledChanges, const QVariantMap &stateChanges, const GMenuActionMap &added)
 {
     // Collect the actions that we removed, altered, or added, so we can eventually signal changes for all menus that contain one of those actions
     QStringList dirtyActions;

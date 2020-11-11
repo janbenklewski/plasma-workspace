@@ -29,16 +29,17 @@
 #include <KActivities/Stats/ResultModel>
 #include <KActivities/Stats/Terms>
 
+#include <KPeople/PersonData>
 #include <kpeople/widgets/actions.h> //FIXME TODO: Pretty include in KPeople broken.
 #include <kpeople/widgets/persondetailsdialog.h>
-#include <KPeople/PersonData>
 
 namespace KAStats = KActivities::Stats;
 
 using namespace KAStats;
 using namespace KAStats::Terms;
 
-RecentContactsModel::RecentContactsModel(QObject *parent) : ForwardingModel(parent)
+RecentContactsModel::RecentContactsModel(QObject *parent)
+    : ForwardingModel(parent)
 {
     refresh();
 }
@@ -80,7 +81,7 @@ QVariant RecentContactsModel::data(const QModelIndex &index, int role) const
     } else if (role == Kicker::HasActionListRole) {
         return true;
     } else if (role == Kicker::ActionListRole) {
-        QVariantList actionList ;
+        QVariantList actionList;
 
         const QVariantMap &forgetAction = Kicker::createActionItem(i18n("Forget Contact"), QStringLiteral("edit-clear-history"), QStringLiteral("forget"));
         actionList << forgetAction;
@@ -131,8 +132,7 @@ bool RecentContactsModel::trigger(int row, const QString &actionId, const QVaria
 
         return false;
     } else if (actionId == QLatin1String("showContactInfo") && withinBounds) {
-        ContactEntry::showPersonDetailsDialog(sourceModel()->data(sourceModel()->index(row, 0),
-            ResultModel::ResourceRole).toString());
+        ContactEntry::showPersonDetailsDialog(sourceModel()->data(sourceModel()->index(row, 0), ResultModel::ResourceRole).toString());
     } else if (actionId == QLatin1String("forget") && withinBounds) {
         if (sourceModel()) {
             ResultModel *resultModel = static_cast<ResultModel *>(sourceModel());
@@ -172,13 +172,7 @@ void RecentContactsModel::refresh()
 {
     QObject *oldModel = sourceModel();
 
-    auto query = UsedResources
-                    | RecentlyUsedFirst
-                    | Agent(QStringLiteral("KTp"))
-                    | Type::any()
-                    | Activity::current()
-                    | Url::startsWith(QStringLiteral("ktp"))
-                    | Limit(15);
+    auto query = UsedResources | RecentlyUsedFirst | Agent(QStringLiteral("KTp")) | Type::any() | Activity::current() | Url::startsWith(QStringLiteral("ktp")) | Limit(15);
 
     ResultModel *model = new ResultModel(query);
 
@@ -189,14 +183,10 @@ void RecentContactsModel::refresh()
     }
 
     // FIXME TODO: Don't wipe entire cache on transactions.
-    connect(model, &QAbstractItemModel::rowsInserted,
-            this, &RecentContactsModel::buildCache, Qt::UniqueConnection);
-    connect(model, &QAbstractItemModel::rowsRemoved,
-            this, &RecentContactsModel::buildCache, Qt::UniqueConnection);
-    connect(model, &QAbstractItemModel::rowsMoved,
-            this, &RecentContactsModel::buildCache, Qt::UniqueConnection);
-    connect(model, &QAbstractItemModel::modelReset,
-            this, &RecentContactsModel::buildCache, Qt::UniqueConnection);
+    connect(model, &QAbstractItemModel::rowsInserted, this, &RecentContactsModel::buildCache, Qt::UniqueConnection);
+    connect(model, &QAbstractItemModel::rowsRemoved, this, &RecentContactsModel::buildCache, Qt::UniqueConnection);
+    connect(model, &QAbstractItemModel::rowsMoved, this, &RecentContactsModel::buildCache, Qt::UniqueConnection);
+    connect(model, &QAbstractItemModel::modelReset, this, &RecentContactsModel::buildCache, Qt::UniqueConnection);
 
     setSourceModel(model);
 
@@ -213,7 +203,7 @@ void RecentContactsModel::buildCache()
 
     QString id;
 
-    for(int i = 0; i < sourceModel()->rowCount(); ++i) {
+    for (int i = 0; i < sourceModel()->rowCount(); ++i) {
         id = sourceModel()->data(sourceModel()->index(i, 0), ResultModel::ResourceRole).toString();
 
         if (!m_idToData.contains(id)) {
@@ -222,7 +212,7 @@ void RecentContactsModel::buildCache()
     }
 }
 
-void RecentContactsModel::insertPersonData(const QString& id, int row)
+void RecentContactsModel::insertPersonData(const QString &id, int row)
 {
     KPeople::PersonData *data = new KPeople::PersonData(id);
 

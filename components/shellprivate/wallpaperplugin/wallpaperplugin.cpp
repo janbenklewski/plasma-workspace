@@ -30,18 +30,16 @@
 WallpaperPlugin::WallpaperPlugin(QObject *parent)
     : QObject(parent)
 {
-
 }
 
 WallpaperPlugin::~WallpaperPlugin()
 {
-
 }
 
 void WallpaperPlugin::getNewWallpaperPlugin(QQuickItem *ctx)
 {
     if (!m_newStuffDialog) {
-        m_newStuffDialog = new KNS3::DownloadDialog( QString::fromLatin1("wallpaperplugin.knsrc") );
+        m_newStuffDialog = new KNS3::DownloadDialog(QString::fromLatin1("wallpaperplugin.knsrc"));
         m_newStuffDialog->setTitle(i18n("Download Wallpaper Plugins"));
     }
 

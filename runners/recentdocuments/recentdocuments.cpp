@@ -23,15 +23,15 @@
 #include <QDir>
 #include <QMimeData>
 
-#include <KRun>
-#include <KLocalizedString>
-#include <KIO/OpenFileManagerWindowJob>
 #include <KIO/Job>
+#include <KIO/OpenFileManagerWindowJob>
+#include <KLocalizedString>
+#include <KRun>
 #include <KShell>
 
+#include <KActivities/Stats/Query>
 #include <KActivities/Stats/ResultModel>
 #include <KActivities/Stats/Terms>
-#include <KActivities/Stats/Query>
 
 using namespace KActivities::Stats;
 using namespace KActivities::Stats::Terms;
@@ -60,13 +60,10 @@ void RecentDocuments::match(Plasma::RunnerContext &context)
     }
 
     const QString term = context.query();
-    auto query = UsedResources
-            | Activity::current()
-            | Order::RecentlyUsedFirst
-            | Agent::any()
-            // we search only on file name, as KActivity does not support better options
-            | Url("/*/" + term + "*")
-            | Limit(20);
+    auto query = UsedResources | Activity::current() | Order::RecentlyUsedFirst |
+        Agent::any()
+        // we search only on file name, as KActivity does not support better options
+        | Url("/*/" + term + "*") | Limit(20);
 
     const auto result = new ResultModel(query);
 
@@ -120,7 +117,7 @@ void RecentDocuments::run(const Plasma::RunnerContext &context, const Plasma::Qu
     run->setRunExecutables(false);
 }
 
-QMimeData * RecentDocuments::mimeDataForMatch(const Plasma::QueryMatch& match)
+QMimeData *RecentDocuments::mimeDataForMatch(const Plasma::QueryMatch &match)
 {
     QMimeData *result = new QMimeData();
     result->setUrls({match.data().toUrl()});

@@ -21,8 +21,8 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef TASKFILTERPROXYMODEL_H
 #define TASKFILTERPROXYMODEL_H
 
-#include <QSortFilterProxyModel>
 #include <QRect>
+#include <QSortFilterProxyModel>
 
 #include "abstracttasksproxymodeliface.h"
 
@@ -30,7 +30,6 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace TaskManager
 {
-
 /**
  * @short A proxy tasks model filtering its source model by various properties.
  *

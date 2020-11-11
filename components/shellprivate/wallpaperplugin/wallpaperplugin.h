@@ -25,22 +25,23 @@
 
 class QQuickItem;
 
-namespace KNS3 {
-    class DownloadDialog;
+namespace KNS3
+{
+class DownloadDialog;
 }
 
 class WallpaperPlugin : public QObject
 {
     Q_OBJECT
 
-    public:
-        explicit WallpaperPlugin(QObject* parent = nullptr);
-        ~WallpaperPlugin() override;
+public:
+    explicit WallpaperPlugin(QObject *parent = nullptr);
+    ~WallpaperPlugin() override;
 
-        Q_INVOKABLE void getNewWallpaperPlugin(QQuickItem *ctx = nullptr);
+    Q_INVOKABLE void getNewWallpaperPlugin(QQuickItem *ctx = nullptr);
 
-    private:
-        QPointer<KNS3::DownloadDialog> m_newStuffDialog;
+private:
+    QPointer<KNS3::DownloadDialog> m_newStuffDialog;
 };
 
 #endif

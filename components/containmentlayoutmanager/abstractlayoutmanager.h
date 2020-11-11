@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include <QObject>
 #include "appletslayout.h"
+#include <QObject>
 
 class ItemContainer;
 
@@ -65,7 +65,7 @@ public:
      */
     void releaseSpace(ItemContainer *item);
 
-// VIRTUALS
+    // VIRTUALS
     virtual QString serializeLayout() const = 0;
 
     virtual void parseLayout(const QString &savedLayout) = 0;
@@ -134,4 +134,3 @@ private:
     // size in pixels of a crid cell
     QSizeF m_cellSize;
 };
-

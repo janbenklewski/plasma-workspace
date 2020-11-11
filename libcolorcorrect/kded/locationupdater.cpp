@@ -28,8 +28,7 @@ LocationUpdater::LocationUpdater(QObject *parent, const QList<QVariant> &)
     : KDEDModule(parent)
 {
     m_adaptor = new ColorCorrect::CompositorAdaptor(this);
-    connect(m_adaptor, &ColorCorrect::CompositorAdaptor::dataUpdated, this,
-            &LocationUpdater::resetLocator);
+    connect(m_adaptor, &ColorCorrect::CompositorAdaptor::dataUpdated, this, &LocationUpdater::resetLocator);
     resetLocator();
 }
 
@@ -38,8 +37,7 @@ void LocationUpdater::resetLocator()
     if (m_adaptor->running() && m_adaptor->mode() == 0) {
         if (!m_locator) {
             m_locator = new ColorCorrect::Geolocator(this);
-            connect(m_locator, &ColorCorrect::Geolocator::locationChanged, this,
-                    &LocationUpdater::sendLocation);
+            connect(m_locator, &ColorCorrect::Geolocator::locationChanged, this, &LocationUpdater::sendLocation);
         }
     } else {
         delete m_locator;

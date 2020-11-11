@@ -25,7 +25,6 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace TaskManager
 {
-
 class Q_DECL_HIDDEN TaskFilterProxyModel::Private
 {
 public:
@@ -259,8 +258,7 @@ bool TaskFilterProxyModel::acceptsRow(int sourceRow) const
 
     // Filter by virtual desktop.
     if (d->filterByVirtualDesktop && !d->virtualDesktop.isNull()) {
-        if (!sourceIdx.data(AbstractTasksModel::IsOnAllVirtualDesktops).toBool()
-            && (!d->demandingAttentionSkipsFilters || !sourceIdx.data(AbstractTasksModel::IsDemandingAttention).toBool())) {
+        if (!sourceIdx.data(AbstractTasksModel::IsOnAllVirtualDesktops).toBool() && (!d->demandingAttentionSkipsFilters || !sourceIdx.data(AbstractTasksModel::IsDemandingAttention).toBool())) {
             const QVariantList &virtualDesktops = sourceIdx.data(AbstractTasksModel::VirtualDesktops).toList();
 
             if (!virtualDesktops.isEmpty() && !virtualDesktops.contains(d->virtualDesktop)) {

@@ -18,42 +18,41 @@
 
 #include "fontsaasettings.h"
 
-#include <QDebug>
 #include <KWindowSystem>
+#include <QDebug>
 
-
-namespace {
-    bool defaultExclude()
-    {
-        return false;
-    }
-
-    int defaultExcludeFrom()
-    {
-        return 8;
-    }
-
-    int defaultExcludeTo()
-    {
-        return 15;
-    }
-
-    bool defaultAntiAliasing()
-    {
-        return true;
-    }
-
-    int defaultSubPixel()
-    {
-        return KXftConfig::SubPixel::Rgb;
-    }
-
-    int defaultHinting()
-    {
-        return KXftConfig::Hint::Slight;
-    }
+namespace
+{
+bool defaultExclude()
+{
+    return false;
 }
 
+int defaultExcludeFrom()
+{
+    return 8;
+}
+
+int defaultExcludeTo()
+{
+    return 15;
+}
+
+bool defaultAntiAliasing()
+{
+    return true;
+}
+
+int defaultSubPixel()
+{
+    return KXftConfig::SubPixel::Rgb;
+}
+
+int defaultHinting()
+{
+    return KXftConfig::Hint::Slight;
+}
+}
 
 class FontAASettingsStore : public QObject
 {
@@ -176,7 +175,7 @@ public:
         grp.writeEntry("XftSubPixel", KXftConfig::toStr(spType));
 
         if (aaState == KXftConfig::AntiAliasing::NotSet) {
-           grp.revertToDefault("XftAntialias");
+            grp.revertToDefault("XftAntialias");
         } else {
             grp.writeEntry("XftAntialias", aaState == KXftConfig::AntiAliasing::Enabled);
         }
@@ -275,7 +274,9 @@ void FontsAASettings::addItemInternal(const QByteArray &propertyName, const QVar
 {
     auto item = new KPropertySkeletonItem(m_fontAASettingsStore, propertyName, defaultValue);
     addItem(item, propertyName);
-    item->setNotifyFunction([this, notifySignal] { emit (this->*notifySignal)(); });
+    item->setNotifyFunction([this, notifySignal] {
+        emit(this->*notifySignal)();
+    });
 }
 
 bool FontsAASettings::exclude() const

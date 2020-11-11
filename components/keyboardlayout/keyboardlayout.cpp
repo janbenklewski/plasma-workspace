@@ -23,33 +23,27 @@
 #include <QDBusInterface>
 #include <QDBusReply>
 
-#include <QDebug>
 #include "debug.h"
+#include <QDebug>
 
 #include "keyboard_layout_interface.h"
 
-KeyboardLayout::KeyboardLayout(QObject* parent)
+KeyboardLayout::KeyboardLayout(QObject *parent)
     : QObject(parent)
     , mIface(nullptr)
 {
-    mIface = new OrgKdeKeyboardLayoutsInterface(QStringLiteral("org.kde.keyboard"),
-                                QStringLiteral("/Layouts"),
-                                QDBusConnection::sessionBus(),
-                                this);
+    mIface = new OrgKdeKeyboardLayoutsInterface(QStringLiteral("org.kde.keyboard"), QStringLiteral("/Layouts"), QDBusConnection::sessionBus(), this);
     if (!mIface->isValid()) {
-          delete mIface;
-          mIface = nullptr;
-          return;
+        delete mIface;
+        mIface = nullptr;
+        return;
     }
 
-    connect(mIface, &OrgKdeKeyboardLayoutsInterface::currentLayoutChanged,
-            this, &KeyboardLayout::onCurrentLayoutChanged);
-    connect(mIface, &OrgKdeKeyboardLayoutsInterface::layoutListChanged,
-            this, &KeyboardLayout::requestLayoutsList);
+    connect(mIface, &OrgKdeKeyboardLayoutsInterface::currentLayoutChanged, this, &KeyboardLayout::onCurrentLayoutChanged);
+    connect(mIface, &OrgKdeKeyboardLayoutsInterface::layoutListChanged, this, &KeyboardLayout::requestLayoutsList);
 
     requestCurrentLayout();
     requestLayoutsList();
-
 }
 
 KeyboardLayout::~KeyboardLayout()
@@ -64,8 +58,7 @@ void KeyboardLayout::requestCurrentLayout()
 
     QDBusPendingReply<QString> pendingLayout = mIface->getCurrentLayout();
     QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(pendingLayout, this);
-    connect(watcher, &QDBusPendingCallWatcher::finished,
-            this, &KeyboardLayout::onCurrentLayoutReceived);
+    connect(watcher, &QDBusPendingCallWatcher::finished, this, &KeyboardLayout::onCurrentLayoutReceived);
 }
 
 void KeyboardLayout::onCurrentLayoutReceived(QDBusPendingCallWatcher *watcher)
@@ -113,10 +106,8 @@ void KeyboardLayout::requestLayoutsList()
 
     QDBusPendingReply<QStringList> pendingLayout = mIface->getLayoutsList();
     QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(pendingLayout, this);
-    connect(watcher, &QDBusPendingCallWatcher::finished,
-            this, &KeyboardLayout::onLayoutsListReceived);
+    connect(watcher, &QDBusPendingCallWatcher::finished, this, &KeyboardLayout::onLayoutsListReceived);
 }
-
 
 void KeyboardLayout::onLayoutsListReceived(QDBusPendingCallWatcher *watcher)
 {
@@ -164,9 +155,7 @@ void KeyboardLayout::setCurrentLayout(const QString &layout)
     }
 }
 
-
 QStringList KeyboardLayout::layouts() const
 {
     return mLayouts;
 }
-

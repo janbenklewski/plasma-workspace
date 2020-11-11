@@ -19,25 +19,28 @@
 #ifndef VIEW_H
 #define VIEW_H
 
-#include <QPointer>
-#include <QQuickView>
 #include <KConfigGroup>
 #include <KConfigWatcher>
 #include <KSharedConfig>
+#include <QPointer>
+#include <QQuickView>
 
 #include <KWayland/Client/plasmashell.h>
 
 #include <PlasmaQuick/Dialog>
 
-namespace KDeclarative {
-    class QmlObject;
+namespace KDeclarative
+{
+class QmlObject;
 }
 
-namespace KWayland {
-    namespace Client {
-        class PlasmaShell;
-        class PlasmaShellSurface;
-    }
+namespace KWayland
+{
+namespace Client
+{
+class PlasmaShell;
+class PlasmaShellSurface;
+}
 }
 
 class ViewPrivate;
@@ -78,7 +81,7 @@ Q_SIGNALS:
     void pinnedChanged();
 
 protected:
-    bool event(QEvent* event) override;
+    bool event(QEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
     void showEvent(QShowEvent *event) override;
 
@@ -114,6 +117,5 @@ private:
     bool m_historyEnabled;
     bool m_pinned = false;
 };
-
 
 #endif // View_H

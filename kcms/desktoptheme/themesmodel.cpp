@@ -36,9 +36,9 @@
 
 #include <algorithm>
 
-ThemesModel::ThemesModel(QObject *parent) : QAbstractListModel(parent)
+ThemesModel::ThemesModel(QObject *parent)
+    : QAbstractListModel(parent)
 {
-
 }
 
 ThemesModel::~ThemesModel() = default;
@@ -61,12 +61,18 @@ QVariant ThemesModel::data(const QModelIndex &index, int role) const
     const auto &item = m_data.at(index.row());
 
     switch (role) {
-    case Qt::DisplayRole: return item.display;
-    case PluginNameRole: return item.pluginName;
-    case DescriptionRole: return item.description;
-    case ColorTypeRole: return item.type;
-    case IsLocalRole: return item.isLocal;
-    case PendingDeletionRole: return item.pendingDeletion;
+    case Qt::DisplayRole:
+        return item.display;
+    case PluginNameRole:
+        return item.pluginName;
+    case DescriptionRole:
+        return item.description;
+    case ColorTypeRole:
+        return item.type;
+    case IsLocalRole:
+        return item.isLocal;
+    case PendingDeletionRole:
+        return item.pendingDeletion;
     }
     return QVariant();
 }
@@ -104,14 +110,12 @@ bool ThemesModel::setData(const QModelIndex &index, const QVariant &value, int r
 
 QHash<int, QByteArray> ThemesModel::roleNames() const
 {
-    return {
-        {Qt::DisplayRole, QByteArrayLiteral("display")},
-        {PluginNameRole, QByteArrayLiteral("pluginName")},
-        {DescriptionRole, QByteArrayLiteral("description")},
-        {ColorTypeRole, QByteArrayLiteral("colorType")},
-        {IsLocalRole, QByteArrayLiteral("isLocal")},
-        {PendingDeletionRole, QByteArrayLiteral("pendingDeletion")}
-    };
+    return {{Qt::DisplayRole, QByteArrayLiteral("display")},
+            {PluginNameRole, QByteArrayLiteral("pluginName")},
+            {DescriptionRole, QByteArrayLiteral("description")},
+            {ColorTypeRole, QByteArrayLiteral("colorType")},
+            {IsLocalRole, QByteArrayLiteral("isLocal")},
+            {PendingDeletionRole, QByteArrayLiteral("pendingDeletion")}};
 }
 
 QString ThemesModel::selectedTheme() const
@@ -158,7 +162,7 @@ void ThemesModel::load()
     // Get all desktop themes
     QStringList themes;
     const QStringList packs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("plasma/desktoptheme"), QStandardPaths::LocateDirectory);
-    for(const QString &ppath : packs) {
+    for (const QString &ppath : packs) {
         const QDir cd(ppath);
         const QStringList &entries = cd.entryList(QDir::Dirs | QDir::Hidden | QDir::NoDotAndDotDot);
         for (const QString &pack : entries) {
@@ -186,7 +190,7 @@ void ThemesModel::load()
             name = packageName;
         }
         const bool isLocal = QFileInfo(theme).isWritable();
-        bool hasPluginName = std::any_of(m_data.begin(), m_data.end(), [&] (const ThemesModelData &item) {
+        bool hasPluginName = std::any_of(m_data.begin(), m_data.end(), [&](const ThemesModelData &item) {
             return item.pluginName == packageName;
         });
         if (!hasPluginName) {
@@ -196,7 +200,7 @@ void ThemesModel::load()
             ColorType type = FollowsColorTheme;
             if (!followsSystemColors) {
                 const KSharedConfig::Ptr config = KSharedConfig::openConfig(colorsPath);
-                const QPalette palette  =  KColorScheme::createApplicationPalette(config);
+                const QPalette palette = KColorScheme::createApplicationPalette(config);
                 const int windowBackgroundGray = qGray(palette.window().color().rgb());
                 if (windowBackgroundGray < 192) {
                     type = DarkTheme;
@@ -204,14 +208,7 @@ void ThemesModel::load()
                     type = LightTheme;
                 }
             }
-            ThemesModelData item {
-                name,
-                packageName,
-                df.readComment(),
-                type,
-                isLocal,
-                false
-            };
+            ThemesModelData item {name, packageName, df.readComment(), type, isLocal, false};
             m_data.append(item);
         }
     }

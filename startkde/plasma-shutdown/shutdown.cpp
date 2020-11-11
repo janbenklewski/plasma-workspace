@@ -1,24 +1,23 @@
 #include "shutdown.h"
 #include "shutdownadaptor.h"
 
-#include <QDBusConnection>
 #include <QCoreApplication>
+#include <QDBusConnection>
 #include <QDir>
 #include <QProcess>
 #include <QStandardPaths>
 
-#include "sessionmanagementbackend.h"
-#include "ksmserver_interface.h"
 #include "debug.h"
+#include "ksmserver_interface.h"
+#include "sessionmanagementbackend.h"
 
-
-Shutdown::Shutdown(QObject *parent):
-    QObject(parent)
+Shutdown::Shutdown(QObject *parent)
+    : QObject(parent)
 {
     new ShutdownAdaptor(this);
     QDBusConnection::sessionBus().registerObject(QStringLiteral("/Shutdown"), QStringLiteral("org.kde.Shutdown"), this);
 
-    //registered as a new service name for easy moving to new process
+    // registered as a new service name for easy moving to new process
     QDBusConnection::sessionBus().registerService(QStringLiteral("org.kde.Shutdown"));
 }
 
@@ -64,13 +63,14 @@ void Shutdown::logoutCancelled()
     qApp->quit();
 }
 
-void Shutdown::logoutComplete() {
+void Shutdown::logoutComplete()
+{
     runShutdownScripts();
     if (m_shutdownType == KWorkSpace::ShutdownTypeHalt) {
-            SessionBackend::self()->shutdown();
+        SessionBackend::self()->shutdown();
     } else if (m_shutdownType == KWorkSpace::ShutdownTypeReboot) {
-            SessionBackend::self()->reboot();
-    } else { //logout
+        SessionBackend::self()->reboot();
+    } else { // logout
         qApp->quit();
     }
 }
@@ -84,10 +84,7 @@ void Shutdown::runShutdownScripts()
         const QStringList entries = dir.entryList(QDir::Files);
         for (const QString &file : entries) {
             // Don't execute backup files
-            if (!file.endsWith(QLatin1Char('~')) && !file.endsWith(QLatin1String(".bak")) &&
-                    (file[0] != QLatin1Char('%') || !file.endsWith(QLatin1Char('%'))) &&
-                    (file[0] != QLatin1Char('#') || !file.endsWith(QLatin1Char('#'))))
-            {
+            if (!file.endsWith(QLatin1Char('~')) && !file.endsWith(QLatin1String(".bak")) && (file[0] != QLatin1Char('%') || !file.endsWith(QLatin1Char('%'))) && (file[0] != QLatin1Char('#') || !file.endsWith(QLatin1Char('#')))) {
                 const QString fullPath = dir.absolutePath() + QLatin1Char('/') + file;
 
                 qCDebug(PLASMA_SESSION) << "running shutdown script" << fullPath;
@@ -96,4 +93,3 @@ void Shutdown::runShutdownScripts()
         }
     }
 }
-

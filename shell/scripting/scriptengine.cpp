@@ -24,41 +24,40 @@
 #include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
+#include <QFutureWatcher>
 #include <QJSValueIterator>
 #include <QStandardPaths>
-#include <QFutureWatcher>
 
+#include <KLocalizedContext>
 #include <QDebug>
 #include <klocalizedstring.h>
 #include <kmimetypetrader.h>
 #include <kservicetypetrader.h>
 #include <kshell.h>
-#include <KLocalizedContext>
 
 // KIO
 //#include <kemailsettings.h> // no camelcase include
 
-#include <Plasma/Applet>
-#include <Plasma/PluginLoader>
-#include <Plasma/Containment>
-#include <qstandardpaths.h>
 #include <KPackage/Package>
 #include <KPackage/PackageLoader>
+#include <Plasma/Applet>
+#include <Plasma/Containment>
+#include <Plasma/PluginLoader>
+#include <qstandardpaths.h>
 
+#include "../screenpool.h"
+#include "../standaloneappcorona.h"
 #include "appinterface.h"
-#include "containment.h"
 #include "configgroup.h"
+#include "containment.h"
 #include "panel.h"
 #include "widget.h"
-#include "../standaloneappcorona.h"
-#include "../screenpool.h"
 
 namespace WorkspaceScripting
 {
-
 ScriptEngine::ScriptEngine(Plasma::Corona *corona, QObject *parent)
-    : QJSEngine(parent),
-      m_corona(corona)
+    : QJSEngine(parent)
+    , m_corona(corona)
 {
     Q_ASSERT(m_corona);
     m_appInterface = new AppInterface(this);
@@ -115,17 +114,15 @@ void ScriptEngine::setupEngine()
     QJSValue localizedContext = newQObject(m_localizedContext);
     QJSValue appInterface = newQObject(m_appInterface);
 
-    
-
-    
-    //AppInterface stuff
-    //FIXME: this line doesn't have much effect for now, if QTBUG-68397 gets fixed,
-    //all the connects to rewrite the properties won't be necessary anymore
-    //globalObject().setPrototype(appInterface);
-    //FIXME: remove __AppInterface if QTBUG-68397 gets solved
-    //as workaround we build manually a js object with getters and setters
+    // AppInterface stuff
+    // FIXME: this line doesn't have much effect for now, if QTBUG-68397 gets fixed,
+    // all the connects to rewrite the properties won't be necessary anymore
+    // globalObject().setPrototype(appInterface);
+    // FIXME: remove __AppInterface if QTBUG-68397 gets solved
+    // as workaround we build manually a js object with getters and setters
     m_scriptSelf.setProperty(QStringLiteral("__AppInterface"), appInterface);
-    QJSValue res = evaluate("__proto__ = {\
+    QJSValue res = evaluate(
+        "__proto__ = {\
                 get locked() {return __AppInterface.locked;},\
                 get hasBattery() {return __AppInterface.hasBattery;},\
                 get screenCount() {return __AppInterface.screenCount;},\
@@ -146,22 +143,22 @@ void ScriptEngine::setupEngine()
                 get languageId() {return __AppInterface.languageId;},\
             }");
     Q_ASSERT(!res.isError());
-    //methods from AppInterface
+    // methods from AppInterface
     m_scriptSelf.setProperty(QStringLiteral("screenGeometry"), appInterface.property("screenGeometry"));
     m_scriptSelf.setProperty(QStringLiteral("lockCorona"), appInterface.property("lockCorona"));
     m_scriptSelf.setProperty(QStringLiteral("sleep"), appInterface.property("sleep"));
     m_scriptSelf.setProperty(QStringLiteral("print"), appInterface.property("print"));
 
-
     m_scriptSelf.setProperty(QStringLiteral("getApiVersion"), globalScriptEngineObject.property("getApiVersion"));
 
-    //Constructors: prefer them js based as they make the c++ code of panel et al way simpler without hacks to get the engine
+    // Constructors: prefer them js based as they make the c++ code of panel et al way simpler without hacks to get the engine
     m_scriptSelf.setProperty(QStringLiteral("__newPanel"), globalScriptEngineObject.property("newPanel"));
     m_scriptSelf.setProperty(QStringLiteral("__newConfigFile"), globalScriptEngineObject.property("configFile"));
-    //definitions of qrectf properties from documentation
-    //only properties/functions which were already binded are.
-    //TODO KF6: just a plain QRectF binding
-    res = evaluate("function QRectF(x,y,w,h) {\
+    // definitions of qrectf properties from documentation
+    // only properties/functions which were already binded are.
+    // TODO KF6: just a plain QRectF binding
+    res = evaluate(
+        "function QRectF(x,y,w,h) {\
                 return {x: x, y: y, width: w, height: h,\
                         get left() {return this.x},\
                         get top() {return this.y},\
@@ -221,7 +218,7 @@ void ScriptEngine::setupEngine()
     m_scriptSelf.setProperty(QStringLiteral("setImmutability"), globalScriptEngineObject.property("setImmutability"));
     m_scriptSelf.setProperty(QStringLiteral("immutability"), globalScriptEngineObject.property("immutability"));
 
-    //i18n
+    // i18n
     m_scriptSelf.setProperty(QStringLiteral("i18n"), localizedContext.property("i18n"));
     m_scriptSelf.setProperty(QStringLiteral("i18nc"), localizedContext.property("i18nc"));
     m_scriptSelf.setProperty(QStringLiteral("i18np"), localizedContext.property("i18np"));
@@ -230,7 +227,7 @@ void ScriptEngine::setupEngine()
     m_scriptSelf.setProperty(QStringLiteral("i18ndc"), localizedContext.property("i18ndc"));
     m_scriptSelf.setProperty(QStringLiteral("i18ndp"), localizedContext.property("i18ndp"));
     m_scriptSelf.setProperty(QStringLiteral("i18ndcp"), localizedContext.property("i18ndcp"));
-    
+
     m_scriptSelf.setProperty(QStringLiteral("xi18n"), localizedContext.property("xi18n"));
     m_scriptSelf.setProperty(QStringLiteral("xi18nc"), localizedContext.property("xi18nc"));
     m_scriptSelf.setProperty(QStringLiteral("xi18np"), localizedContext.property("xi18np"));
@@ -247,8 +244,7 @@ bool ScriptEngine::isPanel(const Plasma::Containment *c)
         return false;
     }
 
-    return c->containmentType() == Plasma::Types::PanelContainment ||
-           c->containmentType() == Plasma::Types::CustomPanelContainment;
+    return c->containmentType() == Plasma::Types::PanelContainment || c->containmentType() == Plasma::Types::CustomPanelContainment;
 }
 
 Plasma::Corona *ScriptEngine::corona() const
@@ -259,14 +255,11 @@ Plasma::Corona *ScriptEngine::corona() const
 bool ScriptEngine::evaluateScript(const QString &script, const QString &path)
 {
     m_errorString = QString();
-    
+
     QJSValue result = evaluate(script, path);
     if (result.isError()) {
-        //qDebug() << "catch the exception!";
-        QString error = i18n("Error: %1 at line %2\n\nBacktrace:\n%3",
-                             result.toString(),
-                             result.property("lineNumber").toInt(),
-                             result.property("stack").toVariant().value<QStringList>().join(QLatin1String("\n  ")));
+        // qDebug() << "catch the exception!";
+        QString error = i18n("Error: %1 at line %2\n\nBacktrace:\n%3", result.toString(), result.property("lineNumber").toInt(), result.property("stack").toVariant().value<QStringList>().join(QLatin1String("\n  ")));
         emit printError(error);
         emit exception(result);
         m_errorString = error;
@@ -278,7 +271,7 @@ bool ScriptEngine::evaluateScript(const QString &script, const QString &path)
 
 void ScriptEngine::exception(const QJSValue &value)
 {
-    //qDebug() << "exception caught!" << value.toVariant();
+    // qDebug() << "exception caught!" << value.toVariant();
     emit printError(value.toVariant().toString());
 }
 
@@ -293,7 +286,7 @@ QStringList ScriptEngine::pendingUpdateScripts(Plasma::Corona *corona)
     QStringList scripts;
 
     const QStringList dirs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, "plasma/shells/" + appName + QStringLiteral("/contents/updates"), QStandardPaths::LocateDirectory);
-    for (const QString& dir : dirs) {
+    for (const QString &dir : dirs) {
         QDirIterator it(dir, QStringList() << QStringLiteral("*.js"));
         while (it.hasNext()) {
             scripts.append(it.next());
@@ -302,7 +295,7 @@ QStringList ScriptEngine::pendingUpdateScripts(Plasma::Corona *corona)
     QStringList scriptPaths;
 
     if (scripts.isEmpty()) {
-        //qDebug() << "no update scripts";
+        // qDebug() << "no update scripts";
         return scriptPaths;
     }
 
@@ -342,13 +335,13 @@ QStringList ScriptEngine::availableActivities() const
     return QStringList();
 }
 
-QList<Containment*> ScriptEngine::desktopsForActivity(const QString &id)
+QList<Containment *> ScriptEngine::desktopsForActivity(const QString &id)
 {
-    QList<Containment*> result;
+    QList<Containment *> result;
 
     // confirm this activity actually exists
     bool found = false;
-    for (const QString &act: availableActivities()) {
+    for (const QString &act : availableActivities()) {
         if (act == id) {
             found = true;
             break;
@@ -420,11 +413,11 @@ Plasma::Containment *ScriptEngine::createContainment(const QString &type, const 
             // some defaults
             c->setFormFactor(Plasma::Types::Horizontal);
             c->setLocation(Plasma::Types::TopEdge);
-            //we have to force lastScreen of the newly created containment,
-            //or it won't have a screen yet at that point, breaking JS code
-            //that relies on it
-            //NOTE: if we'll allow setting a panel screen from JS, it will have to use the following lines as well
-            KConfigGroup cg=c->config();
+            // we have to force lastScreen of the newly created containment,
+            // or it won't have a screen yet at that point, breaking JS code
+            // that relies on it
+            // NOTE: if we'll allow setting a panel screen from JS, it will have to use the following lines as well
+            KConfigGroup cg = c->config();
             cg.writeEntry(QStringLiteral("lastScreen"), 0);
             c->restore(cg);
         }
@@ -442,5 +435,3 @@ Containment *ScriptEngine::createContainmentWrapper(const QString &type, const Q
 }
 
 } // namespace WorkspaceScripting
-
-

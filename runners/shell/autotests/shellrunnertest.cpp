@@ -3,17 +3,17 @@
 #include <QTemporaryFile>
 #include <QTest>
 
-#include <KShell>
 #include <KPluginLoader>
 #include <KPluginMetaData>
 #include <KRunner/RunnerManager>
+#include <KShell>
 #include <QSignalSpy>
 
 using namespace Plasma;
 
 class ShellRunnerTest : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 
 private:
     RunnerManager *manager = nullptr;
@@ -64,25 +64,24 @@ void ShellRunnerTest::testShellrunnerQueries_data()
     QTest::addColumn<QString>("expectedCommand");
     QTest::addColumn<QStringList>("expectedENVs");
 
-    QTest::newRow("Should show result with full executable path")
-        << 1 << "/bin/true" << "/bin/true" << QStringList{};
-    QTest::newRow("Should show result with full executable path and args")
-        << 1 << "/bin/true --help" << "/bin/true --help" << QStringList{};
-    QTest::newRow("Should bot show result for non-existent path")
-        << 0 << "/bin/trueeeeeee" << QString() << QStringList{};
-    QTest::newRow("Should show result for executable name")
-        << 1 << "true" << "true" << QStringList{};
-    QTest::newRow("Should show result for executable name and args")
-        << 1 << "true --help" << "true --help" << QStringList{};
+    QTest::newRow("Should show result with full executable path") << 1 << "/bin/true"
+                                                                  << "/bin/true" << QStringList {};
+    QTest::newRow("Should show result with full executable path and args") << 1 << "/bin/true --help"
+                                                                           << "/bin/true --help" << QStringList {};
+    QTest::newRow("Should bot show result for non-existent path") << 0 << "/bin/trueeeeeee" << QString() << QStringList {};
+    QTest::newRow("Should show result for executable name") << 1 << "true"
+                                                            << "true" << QStringList {};
+    QTest::newRow("Should show result for executable name and args") << 1 << "true --help"
+                                                                     << "true --help" << QStringList {};
 
-    QTest::newRow("Should show result for executable and ENV variables")
-        << 1 << "LC_ALL=C true" << "true" << QStringList{"LC_ALL=C"};
-    QTest::newRow("Should show result for executable + args and ENV variables")
-        << 1 << "LC_ALL=C true --help" << "true --help" << QStringList{"LC_ALL=C"};
-    QTest::newRow("Should show result for executable and multiple ENV variables")
-        << 1 << "LC_ALL=C TEST=1 true" << "true" << QStringList{"LC_ALL=C", "TEST=1"};
-    QTest::newRow("Should show no result for non-existent executable path and ENV variable")
-        << 0 << "LC_ALL=C /bin/trueeeeeeeeeeee" << "" << QStringList{};
+    QTest::newRow("Should show result for executable and ENV variables") << 1 << "LC_ALL=C true"
+                                                                         << "true" << QStringList {"LC_ALL=C"};
+    QTest::newRow("Should show result for executable + args and ENV variables") << 1 << "LC_ALL=C true --help"
+                                                                                << "true --help" << QStringList {"LC_ALL=C"};
+    QTest::newRow("Should show result for executable and multiple ENV variables") << 1 << "LC_ALL=C TEST=1 true"
+                                                                                  << "true" << QStringList {"LC_ALL=C", "TEST=1"};
+    QTest::newRow("Should show no result for non-existent executable path and ENV variable") << 0 << "LC_ALL=C /bin/trueeeeeeeeeeee"
+                                                                                             << "" << QStringList {};
 
     // Some file we can access with a ~
     const QString tmpPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
@@ -93,12 +92,9 @@ void ShellRunnerTest::testShellrunnerQueries_data()
     const QString absoluteFilePath = testFile.fileName();
     const QString tildePath = KShell::tildeCollapse(absoluteFilePath);
 
-    QTest::newRow("Should show result for full path with tilde")
-        << 1 << tildePath << tildePath << QStringList{};
-    QTest::newRow("Should show result for full path with tilde and envs")
-        << 1 << "LC_ALL=C " + tildePath << KShell::quoteArg(tildePath) << QStringList{"LC_ALL=C"};
-    QTest::newRow("Should show result for full path with tilde + args and envs")
-        << 1 << "LC_ALL=C " + tildePath + " --help" << KShell::quoteArg(tildePath) + " --help" << QStringList{"LC_ALL=C"};
+    QTest::newRow("Should show result for full path with tilde") << 1 << tildePath << tildePath << QStringList {};
+    QTest::newRow("Should show result for full path with tilde and envs") << 1 << "LC_ALL=C " + tildePath << KShell::quoteArg(tildePath) << QStringList {"LC_ALL=C"};
+    QTest::newRow("Should show result for full path with tilde + args and envs") << 1 << "LC_ALL=C " + tildePath + " --help" << KShell::quoteArg(tildePath) + " --help" << QStringList {"LC_ALL=C"};
 }
 
 QTEST_MAIN(ShellRunnerTest)

@@ -18,31 +18,29 @@
 
 #include "locationrunner.h"
 
-#include <QMimeData>
-#include <QIcon>
-#include <QUrl>
 #include <QDir>
+#include <QIcon>
+#include <QMimeData>
+#include <QUrl>
 
-#include <QDebug>
-#include <KRun>
+#include <KIO/Global>
 #include <KLocalizedString>
 #include <KProtocolInfo>
-#include <KUriFilter>
-#include <KIO/Global>
+#include <KRun>
 #include <KShell>
+#include <KUriFilter>
+#include <QDebug>
 
 #include <kservicetypetrader.h>
 
 K_EXPORT_PLASMA_RUNNER_WITH_JSON(LocationsRunner, "plasma-runner-locations.json")
 
-
-LocationsRunner::LocationsRunner(QObject *parent, const QVariantList& args)
+LocationsRunner::LocationsRunner(QObject *parent, const QVariantList &args)
     : Plasma::AbstractRunner(parent, args)
 {
     // set the name shown after the result in krunner window
     setObjectName(QStringLiteral("Locations"));
-    addSyntax(Plasma::RunnerSyntax(QStringLiteral(":q:"),
-              i18n("Finds local directories and files, network locations and Internet sites with paths matching :q:.")));
+    addSyntax(Plasma::RunnerSyntax(QStringLiteral(":q:"), i18n("Finds local directories and files, network locations and Internet sites with paths matching :q:.")));
 }
 
 LocationsRunner::~LocationsRunner()
@@ -77,7 +75,7 @@ void LocationsRunner::match(Plasma::RunnerContext &context)
         }
         context.addMatch(match);
     } else if (type == Plasma::RunnerContext::Help) {
-        //qDebug() << "Locations matching because of" << type;
+        // qDebug() << "Locations matching because of" << type;
         Plasma::QueryMatch match(this);
         match.setType(Plasma::QueryMatch::ExactMatch);
         match.setText(i18n("Open %1", term));
@@ -104,14 +102,14 @@ void LocationsRunner::match(Plasma::RunnerContext &context)
         match.setData(url.url());
 
         if (KProtocolInfo::isHelperProtocol(url.scheme())) {
-            //qDebug() << "helper protocol" << url.protocol() <<"call external application" ;
+            // qDebug() << "helper protocol" << url.protocol() <<"call external application" ;
             if (url.scheme() == QLatin1String("mailto")) {
-                match.setText(i18n("Send email to %1",url.path()));
+                match.setText(i18n("Send email to %1", url.path()));
             } else {
                 match.setText(i18n("Launch with %1", KProtocolInfo::exec(url.scheme())));
             }
         } else {
-            //qDebug() << "protocol managed by browser" << url.protocol();
+            // qDebug() << "protocol managed by browser" << url.protocol();
             match.setText(i18n("Go to %1", url.toDisplayString()));
         }
 
@@ -188,7 +186,7 @@ void LocationsRunner::run(const Plasma::RunnerContext &context, const Plasma::Qu
     new KRun(urlToRun, nullptr);
 }
 
-QMimeData * LocationsRunner::mimeDataForMatch(const Plasma::QueryMatch &match)
+QMimeData *LocationsRunner::mimeDataForMatch(const Plasma::QueryMatch &match)
 {
     const QString data = match.data().toString();
     if (!data.isEmpty()) {
@@ -199,6 +197,5 @@ QMimeData * LocationsRunner::mimeDataForMatch(const Plasma::QueryMatch &match)
 
     return nullptr;
 }
-
 
 #include "locationrunner.moc"

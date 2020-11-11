@@ -17,10 +17,10 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <QApplication>
 #include "iconssettings.h"
+#include <QApplication>
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
 
@@ -28,10 +28,10 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    //KNS will give us a path
+    // KNS will give us a path
     QString themeName = app.arguments().last();
     int idx = themeName.lastIndexOf('/');
-    if (idx>=0) {
+    if (idx >= 0) {
         themeName = themeName.mid(idx + 1);
     }
 

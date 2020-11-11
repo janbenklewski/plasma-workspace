@@ -27,9 +27,9 @@
 
 #include "utils_p.h"
 
-#include "kuiserveradaptor.h"
 #include "jobviewserveradaptor.h"
 #include "jobviewserverv2adaptor.h"
+#include "kuiserveradaptor.h"
 
 #include <QDBusConnection>
 #include <QDBusConnectionInterface>
@@ -267,9 +267,7 @@ QDBusObjectPath JobsModelPrivate::requestView(const QString &appName, const QStr
     return requestView(desktopEntry, capabilities, hints);
 }
 
-QDBusObjectPath JobsModelPrivate::requestView(const QString &desktopEntry,
-                                                  int capabilities,
-                                                  const QVariantMap &hints)
+QDBusObjectPath JobsModelPrivate::requestView(const QString &desktopEntry, int capabilities, const QVariantMap &hints)
 {
     qCDebug(NOTIFICATIONMANAGER) << "JobView requested by" << desktopEntry << "with hints" << hints;
 
@@ -375,9 +373,12 @@ QDBusObjectPath JobsModelPrivate::requestView(const QString &desktopEntry,
 
     if (!connection().interface()->isServiceRegistered(serviceName)) {
         qCWarning(NOTIFICATIONMANAGER) << "Service that requested the view wasn't registered anymore by the time the request was being processed";
-        QMetaObject::invokeMethod(this, [this, serviceName] {
-            onServiceUnregistered(serviceName);
-        }, Qt::QueuedConnection);
+        QMetaObject::invokeMethod(
+            this,
+            [this, serviceName] {
+                onServiceUnregistered(serviceName);
+            },
+            Qt::QueuedConnection);
     }
 
     return job->d->objectPath();
@@ -431,8 +432,7 @@ void JobsModelPrivate::updateApplicationPercentage(const QString &desktopEntry)
 
     for (int i = 0; i < m_jobViews.count(); ++i) {
         Job *job = m_jobViews.at(i);
-        if (job->state() == Notifications::JobStateStopped
-                || job->desktopEntry() != desktopEntry) {
+        if (job->state() == Notifications::JobStateStopped || job->desktopEntry() != desktopEntry) {
             continue;
         }
 
@@ -445,18 +445,14 @@ void JobsModelPrivate::updateApplicationPercentage(const QString &desktopEntry)
         percentage = jobsPercentages / jobsCount;
     }
 
-    const QVariantMap properties = {
-        {QStringLiteral("count-visible"), jobsCount > 0},
-        {QStringLiteral("count"), jobsCount},
-        {QStringLiteral("progress-visible"), jobsCount > 0},
-        {QStringLiteral("progress"), percentage / 100.0},
-        // so Task Manager knows this is a job progress and can ignore it if disabled in settings
-        {QStringLiteral("proxied-for"), QStringLiteral("kuiserver")}
-    };
+    const QVariantMap properties = {{QStringLiteral("count-visible"), jobsCount > 0},
+                                    {QStringLiteral("count"), jobsCount},
+                                    {QStringLiteral("progress-visible"), jobsCount > 0},
+                                    {QStringLiteral("progress"), percentage / 100.0},
+                                    // so Task Manager knows this is a job progress and can ignore it if disabled in settings
+                                    {QStringLiteral("proxied-for"), QStringLiteral("kuiserver")}};
 
-    QDBusMessage message = QDBusMessage::createSignal(QStringLiteral("/org/kde/notificationmanager/jobs"),
-                                                      QStringLiteral("com.canonical.Unity.LauncherEntry"),
-                                                      QStringLiteral("Update"));
+    QDBusMessage message = QDBusMessage::createSignal(QStringLiteral("/org/kde/notificationmanager/jobs"), QStringLiteral("com.canonical.Unity.LauncherEntry"), QStringLiteral("Update"));
     message.setArguments({QStringLiteral("application://") + desktopEntry, properties});
     QDBusConnection::sessionBus().send(message);
 }

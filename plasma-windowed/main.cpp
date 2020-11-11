@@ -20,15 +20,15 @@
  */
 
 #include <QApplication>
-#include <qcommandlineparser.h>
 #include <qcommandlineoption.h>
+#include <qcommandlineparser.h>
 
-#include <KQuickAddons/QtQuickSettings>
 #include <KDBusService>
 #include <KLocalizedString>
+#include <KQuickAddons/QtQuickSettings>
 
-#include "plasmawindowedview.h"
 #include "plasmawindowedcorona.h"
+#include "plasmawindowedview.h"
 
 static const char version[] = "1.0";
 
@@ -62,8 +62,7 @@ int main(int argc, char **argv)
     const QStringList arguments = parser.positionalArguments();
     QVariantList args;
     QStringList::const_iterator constIterator = arguments.constBegin() + 1;
-    for (; constIterator != arguments.constEnd();
-           ++constIterator) {
+    for (; constIterator != arguments.constEnd(); ++constIterator) {
         args << (*constIterator);
     }
     corona->setHasStatusNotifier(parser.isSet(QStringLiteral("statusnotifier")));

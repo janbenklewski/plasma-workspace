@@ -202,9 +202,7 @@ void PreviewItem::sendHoverEvent(QHoverEvent *event)
 
     pos = receiver->mapFrom(m_widget.data(), pos.toPoint());
 
-    QMouseEvent mouseEvent(QEvent::MouseMove, pos, receiver->mapTo(receiver->topLevelWidget(), pos.toPoint()),
-                           receiver->mapToGlobal(pos.toPoint()),
-                           Qt::NoButton, {} /*buttons*/, event->modifiers());
+    QMouseEvent mouseEvent(QEvent::MouseMove, pos, receiver->mapTo(receiver->topLevelWidget(), pos.toPoint()), receiver->mapToGlobal(pos.toPoint()), Qt::NoButton, {} /*buttons*/, event->modifiers());
 
     qApp->sendEvent(receiver, &mouseEvent);
 
@@ -243,8 +241,8 @@ void PreviewItem::dispatchEnterLeave(QWidget *enter, QWidget *leave, const QPoin
         auto *l = leave;
         while (!l->isWindow() && (l = l->parentWidget()))
             leaveDepth++;
-        QWidget* wenter = enter;
-        QWidget* wleave = leave;
+        QWidget *wenter = enter;
+        QWidget *wleave = leave;
         while (enterDepth > leaveDepth) {
             wenter = wenter->parentWidget();
             enterDepth--;
@@ -272,8 +270,7 @@ void PreviewItem::dispatchEnterLeave(QWidget *enter, QWidget *leave, const QPoin
         auto *w = leaveList.at(i);
         QApplication::sendEvent(w, &leaveEvent);
         if (w->testAttribute(Qt::WA_Hover)) {
-            QHoverEvent he(QEvent::HoverLeave, QPoint(-1, -1), w->mapFromGlobal(globalPos),
-                            QApplication::keyboardModifiers());
+            QHoverEvent he(QEvent::HoverLeave, QPoint(-1, -1), w->mapFromGlobal(globalPos), QApplication::keyboardModifiers());
             QApplication::sendEvent(w, &he);
         }
     }
@@ -285,8 +282,7 @@ void PreviewItem::dispatchEnterLeave(QWidget *enter, QWidget *leave, const QPoin
             QEnterEvent enterEvent(localPos, windowPos, globalPosF);
             QApplication::sendEvent(w, &enterEvent);
             if (w->testAttribute(Qt::WA_Hover)) {
-                QHoverEvent he(QEvent::HoverEnter, localPos, QPoint(-1, -1),
-                               QApplication::keyboardModifiers());
+                QHoverEvent he(QEvent::HoverEnter, localPos, QPoint(-1, -1), QApplication::keyboardModifiers());
                 QApplication::sendEvent(w, &he);
             }
         }
@@ -301,4 +297,3 @@ void PreviewItem::geometryChanged(const QRectF &newGeometry, const QRectF &oldGe
 
     QQuickPaintedItem::geometryChanged(newGeometry, oldGeometry);
 }
-

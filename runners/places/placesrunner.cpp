@@ -23,18 +23,18 @@
 #include <QThread>
 #include <QTimer>
 
+#include <KLocalizedString>
+#include <KRun>
 #include <QDebug>
 #include <QIcon>
 #include <QMimeData>
 #include <QUrl>
-#include <KRun>
-#include <KLocalizedString>
 
 K_EXPORT_PLASMA_RUNNER_WITH_JSON(PlacesRunner, "plasma-runner-places.json")
 
-//Q_DECLARE_METATYPE(Plasma::RunnerContext)
-PlacesRunner::PlacesRunner(QObject* parent, const QVariantList &args)
-        : Plasma::AbstractRunner(parent, args)
+// Q_DECLARE_METATYPE(Plasma::RunnerContext)
+PlacesRunner::PlacesRunner(QObject *parent, const QVariantList &args)
+    : Plasma::AbstractRunner(parent, args)
 {
     setObjectName(QStringLiteral("Places"));
     Plasma::RunnerSyntax defaultSyntax(i18n("places"), i18n("Lists all file manager locations"));
@@ -55,23 +55,21 @@ void PlacesRunner::match(Plasma::RunnerContext &context)
 {
     if (QThread::currentThread() == QCoreApplication::instance()->thread()) {
         // from the main thread
-        //qDebug() << "calling";
+        // qDebug() << "calling";
         m_helper->match(&context);
     } else {
         // from the non-gui thread
-        //qDebug() << "emitting";
+        // qDebug() << "emitting";
         emit doMatch(&context);
     }
-    //m_helper->match(c);
+    // m_helper->match(c);
 }
 
 PlacesRunnerHelper::PlacesRunnerHelper(PlacesRunner *runner)
     : QObject(runner)
 {
     Q_ASSERT(QThread::currentThread() == QCoreApplication::instance()->thread());
-    connect(runner, &PlacesRunner::doMatch,
-            this, &PlacesRunnerHelper::match,
-            Qt::BlockingQueuedConnection);
+    connect(runner, &PlacesRunner::doMatch, this, &PlacesRunnerHelper::match, Qt::BlockingQueuedConnection);
 
     connect(&m_places, &KFilePlacesModel::setupDone, this, [this](const QModelIndex &index, bool success) {
         if (success && m_pendingUdi == m_places.deviceForIndex(index).udi()) {
@@ -119,7 +117,7 @@ void PlacesRunnerHelper::match(Plasma::RunnerContext *c)
                 match.setSubtext(groupName);
             }
 
-            //if we have to mount it set the device udi instead of the URL, as we can't open it directly
+            // if we have to mount it set the device udi instead of the URL, as we can't open it directly
             if (m_places.isDevice(current_index) && m_places.setupNeeded(current_index)) {
                 const QString udi = m_places.deviceForIndex(current_index).udi();
                 match.setId(udi);
@@ -154,7 +152,7 @@ void PlacesRunnerHelper::openDevice(const QString &udi)
 void PlacesRunner::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &action)
 {
     Q_UNUSED(context);
-    //I don't just pass the model index because the list could change before the user clicks on it, which would make everything go wrong. Ideally we don't want things to go wrong.
+    // I don't just pass the model index because the list could change before the user clicks on it, which would make everything go wrong. Ideally we don't want things to go wrong.
     if (action.data().type() == QVariant::Url) {
         new KRun(action.data().toUrl(), nullptr);
     } else if (action.data().canConvert<QString>()) {

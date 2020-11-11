@@ -32,7 +32,6 @@
 
 namespace NotificationManager
 {
-
 /**
  * @short Represents a single notification
  *
@@ -142,7 +141,6 @@ private:
 
     class Private;
     Private *d;
-
 };
 
 } // namespace NotificationManager

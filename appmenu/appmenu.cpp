@@ -27,10 +27,10 @@
 #include <config-X11.h>
 
 #include "appmenu.h"
+#include "appmenu_dbus.h"
+#include "appmenuadaptor.h"
 #include "kdbusimporter.h"
 #include "menuimporteradaptor.h"
-#include "appmenuadaptor.h"
-#include "appmenu_dbus.h"
 #include "verticalmenu.h"
 
 #include <QApplication>
@@ -39,10 +39,10 @@
 
 #include <KConfig>
 #include <KConfigGroup>
-#include <kpluginfactory.h>
-#include <kpluginloader.h>
 #include <KSharedConfig>
 #include <KWindowSystem>
+#include <kpluginfactory.h>
+#include <kpluginloader.h>
 
 #if HAVE_X11
 #include <QX11Info>
@@ -52,13 +52,11 @@
 static const QByteArray s_x11AppMenuServiceNamePropertyName = QByteArrayLiteral("_KDE_NET_WM_APPMENU_SERVICE_NAME");
 static const QByteArray s_x11AppMenuObjectPathPropertyName = QByteArrayLiteral("_KDE_NET_WM_APPMENU_OBJECT_PATH");
 
-K_PLUGIN_FACTORY_WITH_JSON(AppMenuFactory,
-                           "appmenu.json",
-                           registerPlugin<AppMenuModule>();)
+K_PLUGIN_FACTORY_WITH_JSON(AppMenuFactory, "appmenu.json", registerPlugin<AppMenuModule>();)
 
-AppMenuModule::AppMenuModule(QObject* parent, const QList<QVariant>&)
-    : KDEDModule(parent),
-    m_appmenuDBus(new AppmenuDBus(this))
+AppMenuModule::AppMenuModule(QObject *parent, const QList<QVariant> &)
+    : KDEDModule(parent)
+    , m_appmenuDBus(new AppmenuDBus(this))
 {
     reconfigure();
 
@@ -72,13 +70,10 @@ AppMenuModule::AppMenuModule(QObject* parent, const QList<QVariant>&)
     connect(this, &AppMenuModule::menuHidden, m_appmenuDBus, &AppmenuDBus::menuHidden);
     connect(this, &AppMenuModule::menuShown, m_appmenuDBus, &AppmenuDBus::menuShown);
 
-    m_menuViewWatcher = new QDBusServiceWatcher(QStringLiteral("org.kde.kappmenuview"), QDBusConnection::sessionBus(),
-                                      QDBusServiceWatcher::WatchForRegistration|QDBusServiceWatcher::WatchForUnregistration, this);
+    m_menuViewWatcher = new QDBusServiceWatcher(QStringLiteral("org.kde.kappmenuview"), QDBusConnection::sessionBus(), QDBusServiceWatcher::WatchForRegistration | QDBusServiceWatcher::WatchForUnregistration, this);
 
     auto setupMenuImporter = [this]() {
-        QDBusConnection::sessionBus().connect({}, {}, QStringLiteral("com.canonical.dbusmenu"),
-                                                        QStringLiteral("ItemActivationRequested"),
-                                                this, SLOT(itemActivationRequested(int,uint)));
+        QDBusConnection::sessionBus().connect({}, {}, QStringLiteral("com.canonical.dbusmenu"), QStringLiteral("ItemActivationRequested"), this, SLOT(itemActivationRequested(int, uint)));
 
         // Setup a menu importer if needed
         if (!m_menuImporter) {
@@ -90,9 +85,7 @@ AppMenuModule::AppMenuModule(QObject* parent, const QList<QVariant>&)
     connect(m_menuViewWatcher, &QDBusServiceWatcher::serviceRegistered, this, setupMenuImporter);
     connect(m_menuViewWatcher, &QDBusServiceWatcher::serviceUnregistered, this, [this](const QString &service) {
         Q_UNUSED(service)
-        QDBusConnection::sessionBus().disconnect({}, {}, QStringLiteral("com.canonical.dbusmenu"),
-                                                      QStringLiteral("ItemActivationRequested"),
-                                              this, SLOT(itemActivationRequested(int,uint)));
+        QDBusConnection::sessionBus().disconnect({}, {}, QStringLiteral("com.canonical.dbusmenu"), QStringLiteral("ItemActivationRequested"), this, SLOT(itemActivationRequested(int, uint)));
         delete m_menuImporter;
         m_menuImporter = nullptr;
     });
@@ -126,8 +119,7 @@ void AppMenuModule::slotWindowRegistered(WId id, const QString &serviceName, con
                 }
             }
 
-            xcb_change_property(c, XCB_PROP_MODE_REPLACE, id, atom, XCB_ATOM_STRING,
-                                    8, value.length(), value.constData());
+            xcb_change_property(c, XCB_PROP_MODE_REPLACE, id, atom, XCB_ATOM_STRING, 8, value.length(), value.constData());
         };
 
         // TODO only set the property if it doesn't already exist
@@ -150,7 +142,7 @@ void AppMenuModule::slotShowMenu(int x, int y, const QString &serviceName, const
         return;
     }
 
-    //dbus call by user (for khotkey shortcut)
+    // dbus call by user (for khotkey shortcut)
     if (x == -1 || y == -1) {
         // We do not know kwin button position, so tell kwin to show menu
         emit showRequest(serviceName, menuObjectPath, actionId);
@@ -166,7 +158,7 @@ void AppMenuModule::slotShowMenu(int x, int y, const QString &serviceName, const
         if (!menu || menu != m) {
             return;
         }
-        m_menu = qobject_cast<VerticalMenu*>(menu);
+        m_menu = qobject_cast<VerticalMenu *>(menu);
 
         m_menu.data()->setServiceName(serviceName);
         m_menu.data()->setMenuObjectPath(menuObjectPath);
@@ -176,7 +168,7 @@ void AppMenuModule::slotShowMenu(int x, int y, const QString &serviceName, const
             importer->deleteLater();
         });
 
-        //m_menuImporter->fakeUnityAboutToShow(serviceName, menuObjectPath);
+        // m_menuImporter->fakeUnityAboutToShow(serviceName, menuObjectPath);
 
         m_menu.data()->popup(QPoint(x, y) / qApp->devicePixelRatio());
 

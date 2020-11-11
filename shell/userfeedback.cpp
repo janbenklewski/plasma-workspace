@@ -38,20 +38,29 @@ class PanelCountSource : public KUserFeedback::AbstractDataSource
 {
 public:
     /*! Create a new start count data source. */
-    PanelCountSource(ShellCorona* corona)
+    PanelCountSource(ShellCorona *corona)
         : AbstractDataSource(QStringLiteral("panelCount"), KUserFeedback::Provider::DetailedSystemInformation)
         , corona(corona)
-    {}
+    {
+    }
 
-    QString name() const override { return i18n("Panel Count"); }
-    QString description() const override { return i18n("Counts the panels"); }
+    QString name() const override
+    {
+        return i18n("Panel Count");
+    }
+    QString description() const override
+    {
+        return i18n("Counts the panels");
+    }
 
-    QVariant data() override { return QVariantMap{ { QStringLiteral("panelCount"), corona->panelCount() } } ; }
+    QVariant data() override
+    {
+        return QVariantMap {{QStringLiteral("panelCount"), corona->panelCount()}};
+    }
 
 private:
-    ShellCorona* const corona;
+    ShellCorona *const corona;
 };
-
 
 UserFeedback::UserFeedback(ShellCorona *corona, QObject *parent)
     : QObject(parent)

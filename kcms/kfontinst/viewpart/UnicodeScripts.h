@@ -9,7 +9,6 @@
 #include <QtGlobal>
 #include <KLocalizedString>
 
-// clang-format off
 static const char * const constUnicodeScriptList[] =
 {
     I18N_NOOP("Arabic"),
@@ -1282,6 +1281,6 @@ static const TUnicodeScript constUnicodeScripts[] =
     { 0xE0100, 0xE01EF, 29 },
     { 0x0, 0x0, -1 }
 };
-// clang-format on
+
 #endif
 
